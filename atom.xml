@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-02-18T13:47:30.710Z</updated>
+  <updated>2019-02-19T14:05:54.557Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,24 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>MapReduce之Shuffle过程详解</title>
+    <link href="https://jordenbruce.com/2019/02/19/hadoop-shuffle/"/>
+    <id>https://jordenbruce.com/2019/02/19/hadoop-shuffle/</id>
+    <published>2019-02-19T13:44:20.000Z</published>
+    <updated>2019-02-19T14:05:54.557Z</updated>
+    
+    <summary type="html">
+    
+      Shuffle过程是MapReduce的核心，也被称为奇迹发生的地方。要想理解MapReduce，Shuffle是必须要了解的。
+    
+    </summary>
+    
+    
+      <category term="MapReduce" scheme="https://jordenbruce.com/tags/MapReduce/"/>
+    
+  </entry>
   
   <entry>
     <title>MapReduce执行过程详解</title>
