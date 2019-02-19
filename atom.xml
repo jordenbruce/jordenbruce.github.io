@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-02-19T14:05:54.557Z</updated>
+  <updated>2019-02-19T14:52:21.169Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -21,11 +21,13 @@
     <link href="https://jordenbruce.com/2019/02/19/hadoop-shuffle/"/>
     <id>https://jordenbruce.com/2019/02/19/hadoop-shuffle/</id>
     <published>2019-02-19T13:44:20.000Z</published>
-    <updated>2019-02-19T14:05:54.557Z</updated>
+    <updated>2019-02-19T14:52:21.169Z</updated>
+    
+    <content type="html"><![CDATA[<p>MapReduce计算模型一般包括两个重要的阶段：Map是映射，负责数据的过滤分发，将原始数据转化为键值对；Reduce是规约，将具有相同key值的value进行处理后再输出新的键值对作为最终结果。为了让Reduce可以并行处理Map的结果，必须对Map的输出进行一定的排序与分割，然后再交给对应的Reduce，而这个将Map输出进行进一步整理并交给Reduce的过程就是Shuffle。<br><a id="more"></a></p>]]></content>
     
     <summary type="html">
     
-      Shuffle过程是MapReduce的核心，也被称为奇迹发生的地方。要想理解MapReduce，Shuffle是必须要了解的。
+      &lt;p&gt;MapReduce计算模型一般包括两个重要的阶段：Map是映射，负责数据的过滤分发，将原始数据转化为键值对；Reduce是规约，将具有相同key值的value进行处理后再输出新的键值对作为最终结果。为了让Reduce可以并行处理Map的结果，必须对Map的输出进行一定的排序与分割，然后再交给对应的Reduce，而这个将Map输出进行进一步整理并交给Reduce的过程就是Shuffle。&lt;br&gt;
     
     </summary>
     
