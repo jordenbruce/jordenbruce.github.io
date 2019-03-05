@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-03-04T14:58:57.062Z</updated>
+  <updated>2019-03-05T15:30:44.000Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hive分区表</title>
+    <link href="https://jordenbruce.com/2019/03/04/hive-partition/"/>
+    <id>https://jordenbruce.com/2019/03/04/hive-partition/</id>
+    <published>2019-03-04T14:57:21.000Z</published>
+    <updated>2019-03-05T15:30:44.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>分区作为Hive数据的一种组织形式，每个表可以有一个或多个分区键，用于确定数据如何被存储；例如，带有日期分区列ds的表T具有存储在HDFS中的<table location="">/ds=<date>目录中的特定日期的数据文件。<br><a id="more"></a><br>分区允许Hive根据查询条件选择要扫描的分区数据，比如一个需要访问T表中满足T.ds=’2008-09-01’条件的查询，Hive只需扫描HDFS中<table location="">/ds=2008-09-01/目录中的文件。</table></date></table></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;分区作为Hive数据的一种组织形式，每个表可以有一个或多个分区键，用于确定数据如何被存储；例如，带有日期分区列ds的表T具有存储在HDFS中的&lt;table location=&quot;&quot;&gt;/ds=&lt;date&gt;目录中的特定日期的数据文件。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Hive" scheme="https://jordenbruce.com/categories/Hive/"/>
+    
+    
+      <category term="Partition" scheme="https://jordenbruce.com/tags/Partition/"/>
+    
+  </entry>
   
   <entry>
     <title>HQL内存溢出的参数调优</title>
