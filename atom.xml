@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-09-20T15:02:04.443Z</updated>
+  <updated>2019-09-20T15:08:09.848Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -21,13 +21,13 @@
     <link href="https://jordenbruce.com/2019/09/20/hadoop-cli/"/>
     <id>https://jordenbruce.com/2019/09/20/hadoop-cli/</id>
     <published>2019-09-20T14:49:53.000Z</published>
-    <updated>2019-09-20T15:02:04.443Z</updated>
+    <updated>2019-09-20T15:08:09.848Z</updated>
     
-    <content type="html"><![CDATA[<p>编译并安装Hadoop分布式运行环境之后，第一个要用到的命令行就是hadoop。每个发行版的命令行语法有些不一样，可以通过<code>hadoop -help</code>进行查看。<br><a id="more"></a></p>]]></content>
+    <content type="html"><![CDATA[<p>编译并安装Hadoop分布式运行环境之后，第一个要用到的命令行就是hadoop。需要注意的是：每个发行版的命令行语法有些不一样，可以通过<code>hadoop -help</code>进行查看。<br><a id="more"></a></p><h2 id="0x00-hadoop命令行的语法"><a href="#0x00-hadoop命令行的语法" class="headerlink" title="0x00 hadoop命令行的语法"></a>0x00 hadoop命令行的语法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Usage: hadoop [--config confdir] [COMMAND | CLASSNAME]</span><br><span class="line">  CLASSNAME            run the class named CLASSNAME</span><br><span class="line"> or</span><br><span class="line">  where COMMAND is one of:</span><br><span class="line">  fs                   run a generic filesystem user client</span><br><span class="line">  version              print the version</span><br><span class="line">  jar &lt;jar&gt;            run a jar file</span><br><span class="line">                       note: please use &quot;yarn jar&quot; to launch</span><br><span class="line">                             YARN applications, not this command.</span><br><span class="line">  checknative [-a|-h]  check native hadoop and compression libraries availability</span><br><span class="line">  distcp &lt;srcurl&gt; &lt;desturl&gt; copy file or directories recursively</span><br><span class="line">  archive -archiveName NAME -p &lt;parent path&gt; &lt;src&gt;* &lt;dest&gt; create a hadoop archive</span><br><span class="line">  classpath            prints the class path needed to get the</span><br><span class="line">  credential           interact with credential providers</span><br><span class="line">                       Hadoop jar and the required libraries</span><br><span class="line">  daemonlog            get/set the log level for each daemon</span><br><span class="line">  trace                view and modify Hadoop tracing settings</span><br><span class="line"></span><br><span class="line">Most commands print help when invoked w/o parameters.</span><br></pre></td></tr></table></figure><p>hadoop命令有很多，每个命令的具体含义如下：</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;编译并安装Hadoop分布式运行环境之后，第一个要用到的命令行就是hadoop。每个发行版的命令行语法有些不一样，可以通过&lt;code&gt;hadoop -help&lt;/code&gt;进行查看。&lt;br&gt;
+      &lt;p&gt;编译并安装Hadoop分布式运行环境之后，第一个要用到的命令行就是hadoop。需要注意的是：每个发行版的命令行语法有些不一样，可以通过&lt;code&gt;hadoop -help&lt;/code&gt;进行查看。&lt;br&gt;
     
     </summary>
     
