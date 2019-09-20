@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-09-17T14:16:05.939Z</updated>
+  <updated>2019-09-20T15:02:04.443Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>hadoop命令行的常用操作</title>
+    <link href="https://jordenbruce.com/2019/09/20/hadoop-cli/"/>
+    <id>https://jordenbruce.com/2019/09/20/hadoop-cli/</id>
+    <published>2019-09-20T14:49:53.000Z</published>
+    <updated>2019-09-20T15:02:04.443Z</updated>
+    
+    <content type="html"><![CDATA[<p>编译并安装Hadoop分布式运行环境之后，第一个要用到的命令行就是hadoop。每个发行版的命令行语法有些不一样，可以通过<code>hadoop -help</code>进行查看。<br><a id="more"></a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;编译并安装Hadoop分布式运行环境之后，第一个要用到的命令行就是hadoop。每个发行版的命令行语法有些不一样，可以通过&lt;code&gt;hadoop -help&lt;/code&gt;进行查看。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
+    
+    
+      <category term="hadoop" scheme="https://jordenbruce.com/tags/hadoop/"/>
+    
+  </entry>
   
   <entry>
     <title>手动搭建Sqoop开发环境</title>
