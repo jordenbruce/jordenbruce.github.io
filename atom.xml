@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-09-22T07:28:21.868Z</updated>
+  <updated>2019-09-22T07:51:27.695Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -21,9 +21,13 @@
     <link href="https://jordenbruce.com/2019/09/22/hdfs-cli/"/>
     <id>https://jordenbruce.com/2019/09/22/hdfs-cli/</id>
     <published>2019-09-22T07:26:53.000Z</published>
-    <updated>2019-09-22T07:28:21.868Z</updated>
+    <updated>2019-09-22T07:51:27.695Z</updated>
+    
+    <content type="html"><![CDATA[<p>HDFS是Hadoop应用程序使用的主要分布式存储。HDFS群集主要由管理文件系统元数据的NameNode和存储实际数据的DataNode组成。客户端与NameNode联系以获取文件元数据或文件修改，并直接与DataNode执行实际的文件I/O。<br><a id="more"></a></p><h2 id="0x00-hdfs命令行的语法"><a href="#0x00-hdfs命令行的语法" class="headerlink" title="0x00 hdfs命令行的语法"></a>0x00 hdfs命令行的语法</h2>]]></content>
     
     <summary type="html">
+    
+      &lt;p&gt;HDFS是Hadoop应用程序使用的主要分布式存储。HDFS群集主要由管理文件系统元数据的NameNode和存储实际数据的DataNode组成。客户端与NameNode联系以获取文件元数据或文件修改，并直接与DataNode执行实际的文件I/O。&lt;br&gt;
     
     </summary>
     
