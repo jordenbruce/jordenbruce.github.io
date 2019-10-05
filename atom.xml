@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-10-05T02:28:23.721Z</updated>
+  <updated>2019-10-05T06:25:24.081Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>HiveQL的字符串函数</title>
+    <link href="https://jordenbruce.com/2019/10/05/hql-function-string/"/>
+    <id>https://jordenbruce.com/2019/10/05/hql-function-string/</id>
+    <published>2019-10-05T04:39:39.000Z</published>
+    <updated>2019-10-05T06:25:24.081Z</updated>
+    
+    <content type="html"><![CDATA[<p>Hive 进行数据清洗时，使用最多的函数应该属字符串函数了。主要有：字符编码，字符拼接，字符查找，字符格式化，字符处理，字符截取，字符构造，字符切分，字符替换，编辑距离等。<br><a id="more"></a></p><h2 id="0x00-字符编码"><a href="#0x00-字符编码" class="headerlink" title="0x00 字符编码"></a>0x00 字符编码</h2><ul><li>ascii - 第一个字符的ASCII码</li><li>base64 - 从二进制转换为基本64字符串</li><li>unbase64 - 从基本64字符串转换为二进制</li><li>encode - 从字符串加密为指定字符集的二进制</li><li>decode - 从二进制解码为指定字符集的字符串</li></ul><h2 id="0x01-字符构造"><a href="#0x01-字符构造" class="headerlink" title="0x01 字符构造"></a>0x01 字符构造</h2><ul><li>repeat - 字符组重复n次的字符串</li><li>space - n个空格的字符串</li></ul><h2 id="0x02-字符拼接"><a href="#0x02-字符拼接" class="headerlink" title="0x02 字符拼接"></a>0x02 字符拼接</h2><ul><li>concat - 按顺序串联字符组所得到的字符串</li><li>concat_ws - 以指定分隔符按顺序串联字符组所得到的字符串</li></ul><h2 id="0x03-字符格式化"><a href="#0x03-字符格式化" class="headerlink" title="0x03 字符格式化"></a>0x03 字符格式化</h2><ul><li>lower - 将所有字符都转换为小写形式的字符串</li><li>upper - 将所有字符都转换为大写形式的字符串</li><li>initcap - 首字母大写而其他字母小写的字符串</li><li>format_number</li><li>printf</li></ul><h2 id="0x04-字符查找"><a href="#0x04-字符查找" class="headerlink" title="0x04 字符查找"></a>0x04 字符查找</h2><ul><li>elt - 取第几个字符串</li><li>field - 第一个匹配上字符串的位置</li><li>find_in_set - 查找以逗号分隔字符串的第一个匹配位置</li><li>in_file - 判断字符串是否在文件中占一行</li><li>instr - 查找字符串中第一个字符组匹配上的位置</li><li>locate - 查找字符串中(某个位置之后)第一个字符组匹配上的位置</li><li>ngrams</li><li>context_ngrams</li></ul><h2 id="0x05-字符截取"><a href="#0x05-字符截取" class="headerlink" title="0x05 字符截取"></a>0x05 字符截取</h2><ul><li>substring (substr) - 截取从某个位置开始指定长度的字符串</li><li>substring_index</li><li>regexp_extract - 使用正则表达式提取指定位置的字符串</li><li>get_json_object - 以指定json路径截取json字符串的元素</li><li>parse_url - 截取URL中指定部分</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select regexp_extract(&apos;foothebar&apos;, &apos;foo(.*?)(bar)&apos;, 2);</span><br><span class="line">select get_json_object(src_json.json, &apos;$.owner&apos;) from src_json;</span><br><span class="line">select parse_url(&apos;http://facebook.com/path1/p.php?k1=v1&amp;k2=v2#Ref1&apos;, &apos;HOST&apos;);</span><br></pre></td></tr></table></figure><h2 id="0x06-字符切分"><a href="#0x06-字符切分" class="headerlink" title="0x06 字符切分"></a>0x06 字符切分</h2><ul><li>split - 拆分指定字符(正则表达式)前后的字符串</li><li>str_to_map - 按照指定格式拆分字符串为Map结构</li><li>sentences</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select split(&apos;abc,dsf,wes&apos;,&apos;,&apos;);</span><br><span class="line">select str_to_map(&apos;abc:abc,dsf:dsf&apos;,&apos;,&apos;,&apos;:&apos;);</span><br><span class="line">select sentences(&apos;Hello there! How are you?&apos;);</span><br></pre></td></tr></table></figure><h2 id="0x07-字符替换"><a href="#0x07-字符替换" class="headerlink" title="0x07 字符替换"></a>0x07 字符替换</h2><ul><li>replace</li><li>regexp_replace - 将按模式(正则表达式)匹配上的所有旧字符串替换为新字符串并返回</li><li>translate</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select regexp_replace(&quot;foobar&quot;, &quot;oo|ar&quot;, &quot;&quot;);</span><br></pre></td></tr></table></figure><h2 id="0x08-字符处理"><a href="#0x08-字符处理" class="headerlink" title="0x08 字符处理"></a>0x08 字符处理</h2><ul><li>length - 获取字符串的长度</li><li>trim - 去掉字符串左右两边的空格</li><li>ltrim - 去掉字符串左边的空格</li><li>rtrim - 去掉字符串右边的空格</li><li>reverse - 将字符串的所有字符反转</li><li>lpad - 在字符串左侧添加n个指定字符组</li><li>rpad - 在字符串右侧添加n个指定字符组</li><li>soundex</li></ul><h2 id="0x09-编辑距离"><a href="#0x09-编辑距离" class="headerlink" title="0x09 编辑距离"></a>0x09 编辑距离</h2><ul><li>levenshtein - 由一个字符串转成另一个字符串所需的最少编辑操作次数</li></ul><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF#LanguageManualUDF-StringFunctions" target="_blank" rel="noopener">String Functions</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Hive 进行数据清洗时，使用最多的函数应该属字符串函数了。主要有：字符编码，字符拼接，字符查找，字符格式化，字符处理，字符截取，字符构造，字符切分，字符替换，编辑距离等。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
+    
+    
+      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
+    
+  </entry>
   
   <entry>
     <title>HiveQL的日期函数</title>
@@ -43,13 +65,13 @@
     <link href="https://jordenbruce.com/2019/10/05/hql-function-math/"/>
     <id>https://jordenbruce.com/2019/10/05/hql-function-math/</id>
     <published>2019-10-04T23:26:30.000Z</published>
-    <updated>2019-10-05T01:00:58.793Z</updated>
+    <updated>2019-10-05T04:48:50.749Z</updated>
     
-    <content type="html"><![CDATA[<p>使用Hive进行数据分析时，经常会用到数学函数和聚合函数。Hive支持的内置数学函数有很多，主要有随机函数，取整函数，数学函数，三角函数，进制函数，符号函数，位函数，多列最值函数，分桶函数。<br><a id="more"></a></p><h2 id="0x00-随机函数"><a href="#0x00-随机函数" class="headerlink" title="0x00 随机函数"></a>0x00 随机函数</h2><ul><li>rand - 随机数</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select cast(rand()*1000 as int);</span><br></pre></td></tr></table></figure><h2 id="0x01-取整函数"><a href="#0x01-取整函数" class="headerlink" title="0x01 取整函数"></a>0x01 取整函数</h2><ul><li>round - 保留几位小数</li><li>bround</li><li>floor - 向下取整</li><li>ceil - 向上取整</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select round(rand()*100, 2);</span><br><span class="line">select floor(rand()*100);</span><br><span class="line">select ceil(rand()*100);</span><br></pre></td></tr></table></figure><h2 id="0x02-数学函数"><a href="#0x02-数学函数" class="headerlink" title="0x02 数学函数"></a>0x02 数学函数</h2><ul><li>log - 对数</li><li>log2 - 以2为底的对数</li><li>log10 - 以10为底的对数</li><li>ln - 以e为底的对数</li><li>pow - 指数</li><li>exp - 以e为底的指数</li><li>sqrt - 平方根</li><li>cbrt - 立方根</li><li>e - 自然常数e</li><li>pi - 自然常数π</li><li>factorial - 阶乘</li></ul><h2 id="0x03-三角函数"><a href="#0x03-三角函数" class="headerlink" title="0x03 三角函数"></a>0x03 三角函数</h2><ul><li>sin - 正弦</li><li>cos - 余弦</li><li>tan - 正切</li><li>asin - 反正弦</li><li>acos - 反余弦</li><li>atan - 反正切</li><li>degrees - 从弧度转换为度</li><li>radians - 从度转换为弧度</li></ul><h2 id="0x04-进制函数"><a href="#0x04-进制函数" class="headerlink" title="0x04 进制函数"></a>0x04 进制函数</h2><ul><li>bin - 二进制</li><li>hex - 十六进制</li><li>unhex</li><li>conv - 进制转换</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select conv(cast(rand()*1000 as bigint), 10, 2);</span><br></pre></td></tr></table></figure><h2 id="0x05-符号函数"><a href="#0x05-符号函数" class="headerlink" title="0x05 符号函数"></a>0x05 符号函数</h2><ul><li>positive - 正数</li><li>negative - 负数</li><li>sign - 正负判断</li><li>abs - 绝对值</li></ul><h2 id="0x06-位函数"><a href="#0x06-位函数" class="headerlink" title="0x06 位函数"></a>0x06 位函数</h2><ul><li>shiftleft - 按位左移</li><li>shiftright - 按位右移</li><li>shiftrightunsigned - 按位无符号右移</li></ul><h2 id="0x07-多列最值函数"><a href="#0x07-多列最值函数" class="headerlink" title="0x07 多列最值函数"></a>0x07 多列最值函数</h2><ul><li>greatest - 一行多列取最大值</li><li>least - 一行多列取最小值</li></ul><h2 id="0x07-分桶函数"><a href="#0x07-分桶函数" class="headerlink" title="0x07 分桶函数"></a>0x07 分桶函数</h2><ul><li>pmod - 取模的正数</li><li>width_bucket</li></ul><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF#LanguageManualUDF-MathematicalFunctions" target="_blank" rel="noopener">Mathematical Functions</a></p>]]></content>
+    <content type="html"><![CDATA[<p>使用Hive进行数据分析时，经常会用到数学函数和聚合函数。Hive 支持的内置数学函数有很多，主要有随机函数，取整函数，数学函数，三角函数，进制函数，符号函数，位函数，多列最值函数，分桶函数。<br><a id="more"></a></p><h2 id="0x00-随机函数"><a href="#0x00-随机函数" class="headerlink" title="0x00 随机函数"></a>0x00 随机函数</h2><ul><li>rand - 随机数</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select cast(rand()*1000 as int);</span><br></pre></td></tr></table></figure><h2 id="0x01-取整函数"><a href="#0x01-取整函数" class="headerlink" title="0x01 取整函数"></a>0x01 取整函数</h2><ul><li>round - 保留几位小数</li><li>bround</li><li>floor - 向下取整</li><li>ceil - 向上取整</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select round(rand()*100, 2);</span><br><span class="line">select floor(rand()*100);</span><br><span class="line">select ceil(rand()*100);</span><br></pre></td></tr></table></figure><h2 id="0x02-数学函数"><a href="#0x02-数学函数" class="headerlink" title="0x02 数学函数"></a>0x02 数学函数</h2><ul><li>log - 对数</li><li>log2 - 以2为底的对数</li><li>log10 - 以10为底的对数</li><li>ln - 以e为底的对数</li><li>pow - 指数</li><li>exp - 以e为底的指数</li><li>sqrt - 平方根</li><li>cbrt - 立方根</li><li>e - 自然常数e</li><li>pi - 自然常数π</li><li>factorial - 阶乘</li></ul><h2 id="0x03-三角函数"><a href="#0x03-三角函数" class="headerlink" title="0x03 三角函数"></a>0x03 三角函数</h2><ul><li>sin - 正弦</li><li>cos - 余弦</li><li>tan - 正切</li><li>asin - 反正弦</li><li>acos - 反余弦</li><li>atan - 反正切</li><li>degrees - 从弧度转换为度</li><li>radians - 从度转换为弧度</li></ul><h2 id="0x04-进制函数"><a href="#0x04-进制函数" class="headerlink" title="0x04 进制函数"></a>0x04 进制函数</h2><ul><li>bin - 二进制</li><li>hex - 十六进制</li><li>unhex</li><li>conv - 进制转换</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select conv(cast(rand()*1000 as bigint), 10, 2);</span><br></pre></td></tr></table></figure><h2 id="0x05-符号函数"><a href="#0x05-符号函数" class="headerlink" title="0x05 符号函数"></a>0x05 符号函数</h2><ul><li>positive - 正数</li><li>negative - 负数</li><li>sign - 正负判断</li><li>abs - 绝对值</li></ul><h2 id="0x06-位函数"><a href="#0x06-位函数" class="headerlink" title="0x06 位函数"></a>0x06 位函数</h2><ul><li>shiftleft - 按位左移</li><li>shiftright - 按位右移</li><li>shiftrightunsigned - 按位无符号右移</li></ul><h2 id="0x07-多列最值函数"><a href="#0x07-多列最值函数" class="headerlink" title="0x07 多列最值函数"></a>0x07 多列最值函数</h2><ul><li>greatest - 一行多列取最大值</li><li>least - 一行多列取最小值</li></ul><h2 id="0x07-分桶函数"><a href="#0x07-分桶函数" class="headerlink" title="0x07 分桶函数"></a>0x07 分桶函数</h2><ul><li>pmod - 取模的正数</li><li>width_bucket</li></ul><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF#LanguageManualUDF-MathematicalFunctions" target="_blank" rel="noopener">Mathematical Functions</a></p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;使用Hive进行数据分析时，经常会用到数学函数和聚合函数。Hive支持的内置数学函数有很多，主要有随机函数，取整函数，数学函数，三角函数，进制函数，符号函数，位函数，多列最值函数，分桶函数。&lt;br&gt;
+      &lt;p&gt;使用Hive进行数据分析时，经常会用到数学函数和聚合函数。Hive 支持的内置数学函数有很多，主要有随机函数，取整函数，数学函数，三角函数，进制函数，符号函数，位函数，多列最值函数，分桶函数。&lt;br&gt;
     
     </summary>
     
@@ -424,28 +446,6 @@
     <summary type="html">
     
       &lt;p&gt;MapReduce计算模型一般包括两个重要的阶段：Map是映射，负责数据的过滤分发，将原始数据转化为键值对；Reduce是规约，将具有相同key值的value进行处理后再输出新的键值对作为最终结果。为了让Reduce可以并行处理Map的结果，必须对Map的输出进行一定的排序与分割，然后再交给对应的Reduce，而这个将Map输出进行进一步整理并交给Reduce的过程就是Shuffle。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Hadoop" scheme="https://jordenbruce.com/categories/Hadoop/"/>
-    
-    
-      <category term="mapreduce" scheme="https://jordenbruce.com/tags/mapreduce/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MapReduce执行过程详解</title>
-    <link href="https://jordenbruce.com/2019/02/17/hadoop-mapreduce/"/>
-    <id>https://jordenbruce.com/2019/02/17/hadoop-mapreduce/</id>
-    <published>2019-02-17T14:57:51.000Z</published>
-    <updated>2019-09-22T09:10:04.573Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="分析MapReduce执行过程"><a href="#分析MapReduce执行过程" class="headerlink" title="分析MapReduce执行过程"></a>分析MapReduce执行过程</h2><p>MapReduce运行的时候，会通过Mapper运行的任务读取HDFS中的数据文件，然后调用自己的方法，处理数据，最后输出。Reducer任务会接收Mapper任务输出的数据，作为自己的输入数据，调用自己的方法，最后输出到HDFS的文件中。整个流程如图：<br><img src="http://pn4itjib1.bkt.clouddn.com/blog/20190218/ttzqIIqCPiXv.png" alt="MapReduce执行过程"></p><h3 id="Mapper任务的执行过程详解"><a href="#Mapper任务的执行过程详解" class="headerlink" title="Mapper任务的执行过程详解"></a>Mapper任务的执行过程详解</h3><p><strong>每个Mapper任务是一个java进程</strong>，它会读取HDFS中的文件，解析成很多的键值对，经过我们覆盖的map方法处理后，转换为很多的键值对再输出。整个Mapper任务的处理过程又可以分为以下几个阶段，如图所示：<br><img src="http://pn4itjib1.bkt.clouddn.com/blog/20190218/cTWHrBBqmvhM.png" alt="Mapper执行过程"></p><p>在上图中，把Mapper任务的运行过程分为六个阶段。</p><ol><li><p>第一阶段是把输入文件按照一定的标准分片(InputSplit)，每个输入片的大小是固定的。默认情况下，输入片(InputSplit)的大小与数据块(Block)的大小是相同的。如果数据块(Block)的大小是默认值64MB，输入文件有两个，一个是32MB，一个是72MB。那么小的文件是一个输入片，大文件会分为两个数据块，那么是两个输入片。一共产生三个输入片。每一个输入片由一个Mapper进程处理。这里的三个输入片，会有三个Mapper进程处理。</p></li><li><p>第二阶段是对输入片中的记录按照一定的规则解析成键值对。有个默认规则是把每一行文本内容解析成键值对。“键”是每一行的起始位置(单位是字节)，“值”是本行的文本内容。</p></li><li><p>第三阶段是调用Mapper类中的map方法。第二阶段中解析出来的每一个键值对，调用一次map方法。如果有1000个键值对，就会调用1000次map方法。每一次调用map方法会输出零个或者多个键值对。</p></li><li><p>第四阶段是按照一定的规则对第三阶段输出的键值对进行分区。比较是基于键进行的。比如我们的键表示省份(如北京、上海、山东等)，那么就可以按照不同省份进行分区，同一个省份的键值对划分到一个区中。默认是只有一个区。分区的数量就是Reducer任务运行的数量。默认只有一个Reducer任务。</p></li><li><p>第五阶段是对每个分区中的键值对进行排序。首先，按照键进行排序，对于键相同的键值对，按照值进行排序。比如三个键值对&lt;2,2&gt;、&lt;1,3&gt;、&lt;2,1&gt;，键和值分别是整数。那么排序后的结果是&lt;1,3&gt;、&lt;2,1&gt;、&lt;2,2&gt;。如果有第六阶段，那么进入第六阶段；如果没有，直接输出到本地的linux文件中。</p></li><li><p>第六阶段是对数据进行归约处理，也就是reduce处理。键相等的键值对会调用一次reduce方法。经过这一阶段，数据量会减少。归约后的数据输出到本地的linxu文件中。本阶段默认是没有的，需要用户自己增加这一阶段的代码。</p></li></ol><h3 id="Reducer任务的执行过程详解"><a href="#Reducer任务的执行过程详解" class="headerlink" title="Reducer任务的执行过程详解"></a>Reducer任务的执行过程详解</h3><p><strong>每个Reducer任务是一个java进程</strong>。Reducer任务接收Mapper任务的输出，归约处理后写入到HDFS中，可以分为如下图所示的几个阶段。<br><img src="http://pn4itjib1.bkt.clouddn.com/blog/20190218/UPvIszDbzRJW.png" alt="Reducer执行过程"></p><ol><li><p>第一阶段是Reducer任务会主动从Mapper任务复制其输出的键值对。Mapper任务可能会有很多，因此Reducer会复制多个Mapper的输出。</p></li><li><p>第二阶段是把复制到Reducer本地数据，全部进行合并，即把分散的数据合并成一个大的数据。再对合并后的数据排序。</p></li><li><p>第三阶段是对排序后的键值对调用reduce方法。键相等的键值对调用一次reduce方法，每次调用会产生零个或者多个键值对。最后把这些输出的键值对写入到HDFS文件中。</p></li></ol><p>在整个MapReduce程序的开发过程中，我们最大的工作量是覆盖map函数和覆盖reduce函数。</p><h3 id="键值对的编号"><a href="#键值对的编号" class="headerlink" title="键值对的编号"></a>键值对的编号</h3><p>在对Mapper任务、Reducer任务的分析过程中，会看到很多阶段都出现了键值对，读者容易混淆，所以这里对键值对进行编号，方便大家理解键值对的变化情况，如下图所示。<br><img src="http://pn4itjib1.bkt.clouddn.com/blog/20190218/QXkSATq7bUWL.png" alt="键值对"></p><p>在上图中，对于Mapper任务输入的键值对，定义为key1和value1。在map方法中处理后，输出的键值对，定义为key2和value2。reduce方法接收key2和value2，处理后，输出key3和value3。在下文讨论键值对时，可能把key1和value1简写为&lt;k1,v1&gt;，key2和value2简写为&lt;k2,v2&gt;，key3和value3简写为&lt;k3,v3&gt;。</p><p>以上内容来自：<a href="https://my.oschina.net/itblog/blog/275294" target="_blank" rel="noopener">Hadoop MapReduce执行过程详解（带hadoop例子）</a></p>]]></content>
-    
-    <summary type="html">
-    
-      MapReduce运行的时候，会通过Mapper运行的任务读取HDFS中的数据文件，然后调用自己的方法，处理数据，最后输出。Reducer任务会接收Mapper任务输出的数据，作为自己的输入数据，调用自己的方法，最后输出到HDFS的文件中。
     
     </summary>
     

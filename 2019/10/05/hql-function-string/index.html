@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="hadoop,hive,dw,database,sql,oozie,sqoop,architecture"><title>HiveQL的字符串函数 | JordenBruce</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">HiveQL的字符串函数</h1><a id="logo" href="/.">JordenBruce</a><p class="description">A thousand miles begins with a single step.</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">HiveQL的字符串函数</h1><div class="post-meta">Oct 5, 2019<span> | </span><span class="category"><a href="/categories/Data-Warehouse/">Data Warehouse</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 733</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 2</span><span class="post-meta-item-text"> 分钟</span></span></span></div><div class="post-content"><p>Hive 进行数据清洗时，使用最多的函数应该属字符串函数了。主要有：字符编码，字符拼接，字符查找，字符格式化，字符处理，字符截取，字符构造，字符切分，字符替换，编辑距离等。<br><a id="more"></a></p>
+<h2 id="0x00-字符编码"><a href="#0x00-字符编码" class="headerlink" title="0x00 字符编码"></a>0x00 字符编码</h2><ul>
+<li>ascii - 第一个字符的ASCII码</li>
+<li>base64 - 从二进制转换为基本64字符串</li>
+<li>unbase64 - 从基本64字符串转换为二进制</li>
+<li>encode - 从字符串加密为指定字符集的二进制</li>
+<li>decode - 从二进制解码为指定字符集的字符串</li>
+</ul>
+<h2 id="0x01-字符构造"><a href="#0x01-字符构造" class="headerlink" title="0x01 字符构造"></a>0x01 字符构造</h2><ul>
+<li>repeat - 字符组重复n次的字符串</li>
+<li>space - n个空格的字符串</li>
+</ul>
+<h2 id="0x02-字符拼接"><a href="#0x02-字符拼接" class="headerlink" title="0x02 字符拼接"></a>0x02 字符拼接</h2><ul>
+<li>concat - 按顺序串联字符组所得到的字符串</li>
+<li>concat_ws - 以指定分隔符按顺序串联字符组所得到的字符串</li>
+</ul>
+<h2 id="0x03-字符格式化"><a href="#0x03-字符格式化" class="headerlink" title="0x03 字符格式化"></a>0x03 字符格式化</h2><ul>
+<li>lower - 将所有字符都转换为小写形式的字符串</li>
+<li>upper - 将所有字符都转换为大写形式的字符串</li>
+<li>initcap - 首字母大写而其他字母小写的字符串</li>
+<li>format_number</li>
+<li>printf</li>
+</ul>
+<h2 id="0x04-字符查找"><a href="#0x04-字符查找" class="headerlink" title="0x04 字符查找"></a>0x04 字符查找</h2><ul>
+<li>elt - 取第几个字符串</li>
+<li>field - 第一个匹配上字符串的位置</li>
+<li>find_in_set - 查找以逗号分隔字符串的第一个匹配位置</li>
+<li>in_file - 判断字符串是否在文件中占一行</li>
+<li>instr - 查找字符串中第一个字符组匹配上的位置</li>
+<li>locate - 查找字符串中(某个位置之后)第一个字符组匹配上的位置</li>
+<li>ngrams</li>
+<li>context_ngrams</li>
+</ul>
+<h2 id="0x05-字符截取"><a href="#0x05-字符截取" class="headerlink" title="0x05 字符截取"></a>0x05 字符截取</h2><ul>
+<li>substring (substr) - 截取从某个位置开始指定长度的字符串</li>
+<li>substring_index</li>
+<li>regexp_extract - 使用正则表达式提取指定位置的字符串</li>
+<li>get_json_object - 以指定json路径截取json字符串的元素</li>
+<li>parse_url - 截取URL中指定部分</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select regexp_extract(&apos;foothebar&apos;, &apos;foo(.*?)(bar)&apos;, 2);</span><br><span class="line">select get_json_object(src_json.json, &apos;$.owner&apos;) from src_json;</span><br><span class="line">select parse_url(&apos;http://facebook.com/path1/p.php?k1=v1&amp;k2=v2#Ref1&apos;, &apos;HOST&apos;);</span><br></pre></td></tr></table></figure>
+<h2 id="0x06-字符切分"><a href="#0x06-字符切分" class="headerlink" title="0x06 字符切分"></a>0x06 字符切分</h2><ul>
+<li>split - 拆分指定字符(正则表达式)前后的字符串</li>
+<li>str_to_map - 按照指定格式拆分字符串为Map结构</li>
+<li>sentences</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select split(&apos;abc,dsf,wes&apos;,&apos;,&apos;);</span><br><span class="line">select str_to_map(&apos;abc:abc,dsf:dsf&apos;,&apos;,&apos;,&apos;:&apos;);</span><br><span class="line">select sentences(&apos;Hello there! How are you?&apos;);</span><br></pre></td></tr></table></figure>
+<h2 id="0x07-字符替换"><a href="#0x07-字符替换" class="headerlink" title="0x07 字符替换"></a>0x07 字符替换</h2><ul>
+<li>replace</li>
+<li>regexp_replace - 将按模式(正则表达式)匹配上的所有旧字符串替换为新字符串并返回</li>
+<li>translate</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select regexp_replace(&quot;foobar&quot;, &quot;oo|ar&quot;, &quot;&quot;);</span><br></pre></td></tr></table></figure>
+<h2 id="0x08-字符处理"><a href="#0x08-字符处理" class="headerlink" title="0x08 字符处理"></a>0x08 字符处理</h2><ul>
+<li>length - 获取字符串的长度</li>
+<li>trim - 去掉字符串左右两边的空格</li>
+<li>ltrim - 去掉字符串左边的空格</li>
+<li>rtrim - 去掉字符串右边的空格</li>
+<li>reverse - 将字符串的所有字符反转</li>
+<li>lpad - 在字符串左侧添加n个指定字符组</li>
+<li>rpad - 在字符串右侧添加n个指定字符组</li>
+<li>soundex</li>
+</ul>
+<h2 id="0x09-编辑距离"><a href="#0x09-编辑距离" class="headerlink" title="0x09 编辑距离"></a>0x09 编辑距离</h2><ul>
+<li>levenshtein - 由一个字符串转成另一个字符串所需的最少编辑操作次数</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF#LanguageManualUDF-StringFunctions" target="_blank" rel="noopener">String Functions</a></p>
+</div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>JordenBruce</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2019/10/05/hql-function-string/">https://jordenbruce.com/2019/10/05/hql-function-string/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://jordenbruce.com/2019/10/05/hql-function-string/" data-id="ck1d6bqja000p44n3980qtsp1" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACGUlEQVR42u3aO47DMAwFwNz/0tk2jY1HUl7A0rgykkD2pCD4+3zi6/tz3X9y9W3vzMUXBgbGaxnf2+v+N1ffJi/dO/nyKRgYGAcwrh58f9/7fYLJn4WBgYGR3K8K2b2/DAMDAyP5Ta/4rBbGGBgYGHlATF6i156rBnQMDIxzGHlw/P/7R+YbGBgYr2J8i9ek6O21/qO3wsDA2JqRB7hJWy1ZxagGXAwMjHMYydHVV5ysX9wvZBTyVgwMjO0Y1XQweXD+rHm6iYGBsTejOshMwl8SoCfBFwMD40xGXkxWm2jPrVlgYGCczChE6ODoPGUcFbEYGBhbM/I2WR58V+1CFNJWDAyMrRmr2vTzcWZvHQ0DA+MExiTk9fLQXkCPylcMDIxNGXkjbP6iSWE8qsUxMDCOYVSHkb1li+oQolo2Y2Bg7MRY1URLPqmWxM2QioGBsTVjslqR/xH50lh5GICBgbEpI8dUA/HaaFmYbGBgYBzAeK5/la9ZVEM2BgbGOYzJ8lY1rayWzYXuIAYGxtaMVV2s5MzCdCIeLWBgYOzKWBtkk2Rx1QmjpBADA+NVjEmwSwYGk7WM5H7B1hsGBsZLGNUW2KTRn5yWD0oxMDBOY1QDXz5cXJvqXSIxMDAw4mHAJA/Nh6CPDAYwMDA2ZUwWNXql8rLUEAMD44WMpIitpnfV5Yw8vGJgYJzGmCdtvQFDEnzzewwMjE0Zf7rsA/HYn6FJAAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/hive/">hive</a></div><div class="post-nav"><a class="next" href="/2019/10/05/hql-function-date/">HiveQL的日期函数</a></div><div id="container"></div><link rel="stylesheet" type="text/css" href="//unpkg.com/gitalk/dist/gitalk.css?v=0.0.0"><script type="text/javascript" src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js?v=0.0.0"></script><script type="text/javascript" src="//unpkg.com/gitalk/dist/gitalk.min.js?v=0.0.0"></script><script>var gitalk = new Gitalk({
+  clientID: '24d554575e1f11313fa9',
+  clientSecret: '8de4e32b66c3386a10942a3c5e29cf09b8954c26',
+  repo: 'jordenbruce.github.io',
+  owner: 'jordenbruce',
+  admin: ['jordenbruce'],
+  id: md5(location.pathname),
+  distractionFreeMode: false
+})
+gitalk.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://jordenbruce.com"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Data-Warehouse/">Data Warehouse</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hive/">Hive</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/hadoop/" style="font-size: 15px;">hadoop</a> <a href="/tags/mapreduce/" style="font-size: 15px;">mapreduce</a> <a href="/tags/hive/" style="font-size: 15px;">hive</a> <a href="/tags/partition/" style="font-size: 15px;">partition</a> <a href="/tags/udf/" style="font-size: 15px;">udf</a> <a href="/tags/yarn/" style="font-size: 15px;">yarn</a> <a href="/tags/oom/" style="font-size: 15px;">oom</a> <a href="/tags/sqoop/" style="font-size: 15px;">sqoop</a> <a href="/tags/hdfs/" style="font-size: 15px;">hdfs</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-string/">HiveQL的字符串函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-date/">HiveQL的日期函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-math/">HiveQL的数学函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/30/hql-function/">HiveQL的函数概览</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/hql-select/">HiveQL的Select语句</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/hql-dml/">HiveQL的导入与导出</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/23/hql-table/">HiveQL的Table常用操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/yarn-cli/">yarn命令行的常用操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/hdfs-cli/">hdfs命令行的常用操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/20/hadoop-cli/">hadoop命令行的常用操作</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://hao.199it.com" title="大数据导航" target="_blank">大数据导航</a><ul></ul><a href="https://www.infoq.cn" title="InfoQ" target="_blank">InfoQ</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">JordenBruce.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
