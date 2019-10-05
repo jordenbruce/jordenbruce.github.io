@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-09-30T11:30:20.371Z</updated>
+  <updated>2019-10-05T01:00:58.793Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>HiveQL的数学函数</title>
+    <link href="https://jordenbruce.com/2019/10/05/hql-function-math/"/>
+    <id>https://jordenbruce.com/2019/10/05/hql-function-math/</id>
+    <published>2019-10-04T23:26:30.000Z</published>
+    <updated>2019-10-05T01:00:58.793Z</updated>
+    
+    <content type="html"><![CDATA[<p>使用Hive进行数据分析时，经常会用到数学函数和聚合函数。Hive支持的内置数学函数有很多，主要有随机函数，取整函数，数学函数，三角函数，进制函数，符号函数，位函数，多列最值函数，分桶函数。<br><a id="more"></a></p><h2 id="0x00-随机函数"><a href="#0x00-随机函数" class="headerlink" title="0x00 随机函数"></a>0x00 随机函数</h2><ul><li>rand - 随机数</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select cast(rand()*1000 as int);</span><br></pre></td></tr></table></figure><h2 id="0x01-取整函数"><a href="#0x01-取整函数" class="headerlink" title="0x01 取整函数"></a>0x01 取整函数</h2><ul><li>round - 保留几位小数</li><li>bround</li><li>floor - 向下取整</li><li>ceil - 向上取整</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select round(rand()*100, 2);</span><br><span class="line">select floor(rand()*100);</span><br><span class="line">select ceil(rand()*100);</span><br></pre></td></tr></table></figure><h2 id="0x02-数学函数"><a href="#0x02-数学函数" class="headerlink" title="0x02 数学函数"></a>0x02 数学函数</h2><ul><li>log - 对数</li><li>log2 - 以2为底的对数</li><li>log10 - 以10为底的对数</li><li>ln - 以e为底的对数</li><li>pow - 指数</li><li>exp - 以e为底的指数</li><li>sqrt - 平方根</li><li>cbrt - 立方根</li><li>e - 自然常数e</li><li>pi - 自然常数π</li><li>factorial - 阶乘</li></ul><h2 id="0x03-三角函数"><a href="#0x03-三角函数" class="headerlink" title="0x03 三角函数"></a>0x03 三角函数</h2><ul><li>sin - 正弦</li><li>cos - 余弦</li><li>tan - 正切</li><li>asin - 反正弦</li><li>acos - 反余弦</li><li>atan - 反正切</li><li>degrees - 从弧度转换为度</li><li>radians - 从度转换为弧度</li></ul><h2 id="0x04-进制函数"><a href="#0x04-进制函数" class="headerlink" title="0x04 进制函数"></a>0x04 进制函数</h2><ul><li>bin - 二进制</li><li>hex - 十六进制</li><li>unhex</li><li>conv - 进制转换</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select conv(cast(rand()*1000 as bigint), 10, 2);</span><br></pre></td></tr></table></figure><h2 id="0x05-符号函数"><a href="#0x05-符号函数" class="headerlink" title="0x05 符号函数"></a>0x05 符号函数</h2><ul><li>positive - 正数</li><li>negative - 负数</li><li>sign - 正负判断</li><li>abs - 绝对值</li></ul><h2 id="0x06-位函数"><a href="#0x06-位函数" class="headerlink" title="0x06 位函数"></a>0x06 位函数</h2><ul><li>shiftleft - 按位左移</li><li>shiftright - 按位右移</li><li>shiftrightunsigned - 按位无符号右移</li></ul><h2 id="0x07-多列最值函数"><a href="#0x07-多列最值函数" class="headerlink" title="0x07 多列最值函数"></a>0x07 多列最值函数</h2><ul><li>greatest - 一行多列取最大值</li><li>least - 一行多列取最小值</li></ul><h2 id="0x07-分桶函数"><a href="#0x07-分桶函数" class="headerlink" title="0x07 分桶函数"></a>0x07 分桶函数</h2><ul><li>pmod - 取模的正数</li><li>width_bucket</li></ul><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF#LanguageManualUDF-MathematicalFunctions" target="_blank" rel="noopener">Mathematical Functions</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;使用Hive进行数据分析时，经常会用到数学函数和聚合函数。Hive支持的内置数学函数有很多，主要有随机函数，取整函数，数学函数，三角函数，进制函数，符号函数，位函数，多列最值函数，分桶函数。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
+    
+    
+      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
+    
+  </entry>
   
   <entry>
     <title>HiveQL的函数概览</title>
