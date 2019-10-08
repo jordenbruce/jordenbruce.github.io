@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="hadoop,hive,dw,database,sql,oozie,sqoop,architecture"><title>Sqoop命令行的导入与导出 | JordenBruce</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Sqoop命令行的导入与导出</h1><a id="logo" href="/.">JordenBruce</a><p class="description">A thousand miles begins with a single step.</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Sqoop命令行的导入与导出</h1><div class="post-meta">Oct 5, 2019<span> | </span><span class="category"><a href="/categories/Data-Warehouse/">Data Warehouse</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 586</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 2</span><span class="post-meta-item-text"> 分钟</span></span></span></div><div class="post-content"><p>Sqoop是一种被设计为在Hadoop与关系数据库之间传输数据的工具。您可以使用Sqoop将数据从MySQL或Oracle等关系数据库管理系统（RDBMS）导入Hadoop分布式文件系统（HDFS），在Hadoop MapReduce中转换数据，然后将数据导出回RDBMS 。Sqoop使用MapReduce导入和导出数据，还提供了并行操作以及容错能力。<br><a id="more"></a></p>
+<h2 id="0x00-sqoop命令行的语法"><a href="#0x00-sqoop命令行的语法" class="headerlink" title="0x00 sqoop命令行的语法"></a>0x00 sqoop命令行的语法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">usage: sqoop COMMAND [ARGS]</span><br><span class="line"></span><br><span class="line">Available commands:</span><br><span class="line">  codegen            Generate code to interact with database records</span><br><span class="line">  create-hive-table  Import a table definition into Hive</span><br><span class="line">  eval               Evaluate a SQL statement and display the results</span><br><span class="line">  export             Export an HDFS directory to a database table</span><br><span class="line">  help               List available commands</span><br><span class="line">  import             Import a table from a database to HDFS</span><br><span class="line">  import-all-tables  Import tables from a database to HDFS</span><br><span class="line">  import-mainframe   Import datasets from a mainframe server to HDFS</span><br><span class="line">  job                Work with saved jobs</span><br><span class="line">  list-databases     List available databases on a server</span><br><span class="line">  list-tables        List available tables in a database</span><br><span class="line">  merge              Merge results of incremental imports</span><br><span class="line">  metastore          Run a standalone Sqoop metastore</span><br><span class="line">  version            Display version information</span><br><span class="line"></span><br><span class="line">See &apos;sqoop help COMMAND&apos; for information on a specific command.</span><br></pre></td></tr></table></figure>
+<p>每个命令的具体含义如下：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>list-databases</td>
+<td>列出所有数据库名</td>
+</tr>
+<tr>
+<td>list-tables</td>
+<td>列出某个数据库下所有表</td>
+</tr>
+<tr>
+<td>create-hive-table</td>
+<td>生成与关系数据库表结构对应的hive表结构</td>
+</tr>
+<tr>
+<td>eval</td>
+<td>执行一个SQL语句并显示结果</td>
+</tr>
+<tr>
+<td>import</td>
+<td>将关系型数据库中的数据导入到HDFS（包括Hive，HBase）中</td>
+</tr>
+<tr>
+<td>import-all-tables</td>
+<td>导入某个数据库下所有表到HDFS中</td>
+</tr>
+<tr>
+<td>import-mainframe</td>
+<td>从一台主机中导入数据集至HDFS</td>
+</tr>
+<tr>
+<td>export</td>
+<td>从HDFS（包括Hive和HBase）中将数据导出到关系型数据库中</td>
+</tr>
+<tr>
+<td>job</td>
+<td>用来生成一个sqoop任务，生成后不会立即执行，需要手动执行</td>
+</tr>
+<tr>
+<td>merge</td>
+<td>将HDFS中不同目录下面的数据合并在一起并放入指定目录中</td>
+</tr>
+<tr>
+<td>codegen</td>
+<td>将关系型数据库中的表映射为一个Java类，在该类中有各列对应的各个字段</td>
+</tr>
+<tr>
+<td>metastore</td>
+<td>启动元数据服务</td>
+</tr>
+<tr>
+<td>version</td>
+<td>查看版本</td>
+</tr>
+<tr>
+<td>help</td>
+<td>查看帮助</td>
+</tr>
+</tbody>
+</table>
+<p>常用命令有：list-tables, import, export 。</p>
+<h2 id="0x01-sqoop-import"><a href="#0x01-sqoop-import" class="headerlink" title="0x01 sqoop import"></a>0x01 sqoop import</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sqoop import \</span><br><span class="line">-D mapred.job.queue.name=root.data \</span><br><span class="line">--connect jdbc:mysql://mdw01:3306/common \</span><br><span class="line">--username sqoop -P \</span><br><span class="line">--table employee \</span><br><span class="line">--mapreduce-job-name sqoop_import_table_full \</span><br><span class="line">--create-hive-table --hive-import \</span><br><span class="line">--hive-database default --hive-table ods_employee_ds</span><br></pre></td></tr></table></figure>
+<p>上述命令是全量导入，sqoop 还支持增量导入。</p>
+<h2 id="0x02-sqoop-export"><a href="#0x02-sqoop-export" class="headerlink" title="0x02 sqoop export"></a>0x02 sqoop export</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sqoop export \</span><br><span class="line">-D mapred.job.queue.name=root.data \</span><br><span class="line">--connect jdbc:mysql://mdw01:3306/common \</span><br><span class="line">--username sqoop -P \</span><br><span class="line">--table employee \</span><br><span class="line">--mapreduce-job-name sqoop_export_table \</span><br><span class="line">--export-dir /user/hive/warehouse/ods_employee_ds</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html" target="_blank" rel="noopener">Sqoop User Guide</a><br><a href="https://www.jianshu.com/p/b1fa9d853c89" target="_blank" rel="noopener">Sqoop 命令与参数详解</a><br><a href="https://www.cnblogs.com/xiaodf/p/6030102.html" target="_blank" rel="noopener">Sqoop使用手册</a></p>
+</div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>JordenBruce</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2019/10/05/sqoop-cli/">https://jordenbruce.com/2019/10/05/sqoop-cli/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://jordenbruce.com/2019/10/05/sqoop-cli/" data-id="ck1hzv22e000fzsn36e5708nk" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMUlEQVR42u3awW7rMAwEwPz/T+ddCwT22xXTApZGpyJRZY0PDCnq9YrH+8f4+cnnnM/5nzPv17ya/4WBgYHxWMb7dtzPSTZ9hU9WSPaGgYFxDuMqgt2H1/vHt8E6mXn5OQYGBkaQrrWBO0FiYGBgrDGKpZdKVgwMDIxJEdsWom2y+Ee1OAYGxgMZ+an73//9K/0NDAyMRzHe5Zjw1hqZ0a4wMDC2ZqwdpbXRbw1W7wcDA+MAxtpVifv/+o0DuPr9YWBgbMRYqxnnDc5Jc6L+3cDAwHggIz+anx/MtbCEh4GBcQKjTdHyBDFf7Wq7CQADA+M0xtqFiTbgtmsWVyswMDC2ZuRhLn8Featg0iS4/BYDA2M7xtrR/yR8tw2G+tQQAwNjI0aeqNUl5VK7NClriyocAwNjI0Z9BD9O+9pn/ecFYWBgHMDIA2XSSMjTu7YtUaSGGBgYmzLy4jNnJNcpJvHztfZ4DAyMRzHykDcJr/NPip4GBgbGpoz8kKtYaCmMzpEYGBi7MtYuaa2F2jz1bFsXGBgYJzDahfLbHG2q1zYSMDAwTmNMkrz2IsVaulnU4hgYGFsw3uXIt5tsdO0CR/GLgYGBsQXjW4dl+YOTrSRb/1qbEwMD4yGMPMgWJeVSSJ0EdAwMjBMYeeCb5GOjKxT3q2FgYGCUReykqVA3LzEwMDCCtC8PzS27eIkYGBgHMNorF22xmrc/11bGwMDYmzG5qdH2HNq0chLcMTAwtmD8Ax1HdHIsaFwxAAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/sqoop/">sqoop</a></div><div class="post-nav"><a class="next" href="/2019/10/05/hql-function-string/">HiveQL的字符串函数</a></div><div id="container"></div><link rel="stylesheet" type="text/css" href="//unpkg.com/gitalk/dist/gitalk.css?v=0.0.0"><script type="text/javascript" src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js?v=0.0.0"></script><script type="text/javascript" src="//unpkg.com/gitalk/dist/gitalk.min.js?v=0.0.0"></script><script>var gitalk = new Gitalk({
+  clientID: '24d554575e1f11313fa9',
+  clientSecret: '8de4e32b66c3386a10942a3c5e29cf09b8954c26',
+  repo: 'jordenbruce.github.io',
+  owner: 'jordenbruce',
+  admin: ['jordenbruce'],
+  id: md5(location.pathname),
+  distractionFreeMode: false
+})
+gitalk.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://jordenbruce.com"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Data-Warehouse/">Data Warehouse</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hive/">Hive</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/hadoop/" style="font-size: 15px;">hadoop</a> <a href="/tags/hive/" style="font-size: 15px;">hive</a> <a href="/tags/sqoop/" style="font-size: 15px;">sqoop</a> <a href="/tags/udf/" style="font-size: 15px;">udf</a> <a href="/tags/partition/" style="font-size: 15px;">partition</a> <a href="/tags/hdfs/" style="font-size: 15px;">hdfs</a> <a href="/tags/yarn/" style="font-size: 15px;">yarn</a> <a href="/tags/oom/" style="font-size: 15px;">oom</a> <a href="/tags/mapreduce/" style="font-size: 15px;">mapreduce</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/sqoop-cli/">Sqoop命令行的导入与导出</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-string/">HiveQL的字符串函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-date/">HiveQL的日期函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-math/">HiveQL的数学函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/30/hql-function/">HiveQL的函数概览</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/hql-select/">HiveQL的Select语句</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/hql-dml/">HiveQL的导入与导出</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/23/hql-table/">HiveQL的Table常用操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/yarn-cli/">yarn命令行的常用操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/hdfs-cli/">hdfs命令行的常用操作</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://hao.199it.com" title="大数据导航" target="_blank">大数据导航</a><ul></ul><a href="https://www.infoq.cn" title="InfoQ" target="_blank">InfoQ</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">JordenBruce.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
