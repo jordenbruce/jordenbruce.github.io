@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-10-12T13:51:19.048Z</updated>
+  <updated>2019-10-12T14:03:17.183Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>MapReduce执行过程详解</title>
+    <link href="https://jordenbruce.com/2019/10/12/hadoop-mapreduce/"/>
+    <id>https://jordenbruce.com/2019/10/12/hadoop-mapreduce/</id>
+    <published>2019-10-12T14:57:51.000Z</published>
+    <updated>2019-10-12T14:03:17.183Z</updated>
+    
+    <content type="html"><![CDATA[<p>MapReduce运行的时候，会通过Mapper运行的任务读取HDFS中的数据文件，然后调用自己的方法，处理数据，最后输出。Reducer任务会接收Mapper任务输出的数据，作为自己的输入数据，调用自己的方法，最后输出到HDFS的文件中。<br><a id="more"></a></p><h2 id="0x00-分析MapReduce执行过程"><a href="#0x00-分析MapReduce执行过程" class="headerlink" title="0x00 分析MapReduce执行过程"></a>0x00 分析MapReduce执行过程</h2><p>MapReduce运行的时候，会通过Mapper运行的任务读取HDFS中的数据文件，然后调用自己的方法，处理数据，最后输出。Reducer任务会接收Mapper任务输出的数据，作为自己的输入数据，调用自己的方法，最后输出到HDFS的文件中。整个流程如图：</p><p><img src="https://i.loli.net/2019/10/12/jotATrBqyIzV5cY.png" alt="MapReduce执行过程"></p><h2 id="0x01-Mapper任务的执行过程详解"><a href="#0x01-Mapper任务的执行过程详解" class="headerlink" title="0x01 Mapper任务的执行过程详解"></a>0x01 Mapper任务的执行过程详解</h2><p><strong>每个Mapper任务是一个java进程</strong>，它会读取HDFS中的文件，解析成很多的键值对，经过我们覆盖的map方法处理后，转换为很多的键值对再输出。整个Mapper任务的处理过程又可以分为以下几个阶段，如图所示：</p><p><img src="https://i.loli.net/2019/10/12/6jbSxLJQNqls4FP.png" alt="Mapper执行过程"></p><p>在上图中，把Mapper任务的运行过程分为六个阶段。</p><ol><li><p>第一阶段是把输入文件按照一定的标准分片(InputSplit)，每个输入片的大小是固定的。默认情况下，输入片(InputSplit)的大小与数据块(Block)的大小是相同的。如果数据块(Block)的大小是默认值64MB，输入文件有两个，一个是32MB，一个是72MB。那么小的文件是一个输入片，大文件会分为两个数据块，那么是两个输入片。一共产生三个输入片。每一个输入片由一个Mapper进程处理。这里的三个输入片，会有三个Mapper进程处理。</p></li><li><p>第二阶段是对输入片中的记录按照一定的规则解析成键值对。有个默认规则是把每一行文本内容解析成键值对。“键”是每一行的起始位置(单位是字节)，“值”是本行的文本内容。</p></li><li><p>第三阶段是调用Mapper类中的map方法。第二阶段中解析出来的每一个键值对，调用一次map方法。如果有1000个键值对，就会调用1000次map方法。每一次调用map方法会输出零个或者多个键值对。</p></li><li><p>第四阶段是按照一定的规则对第三阶段输出的键值对进行分区。比较是基于键进行的。比如我们的键表示省份(如北京、上海、山东等)，那么就可以按照不同省份进行分区，同一个省份的键值对划分到一个区中。默认是只有一个区。分区的数量就是Reducer任务运行的数量。默认只有一个Reducer任务。</p></li><li><p>第五阶段是对每个分区中的键值对进行排序。首先，按照键进行排序，对于键相同的键值对，按照值进行排序。比如三个键值对&lt;2,2&gt;、&lt;1,3&gt;、&lt;2,1&gt;，键和值分别是整数。那么排序后的结果是&lt;1,3&gt;、&lt;2,1&gt;、&lt;2,2&gt;。如果有第六阶段，那么进入第六阶段；如果没有，直接输出到本地的linux文件中。</p></li><li><p>第六阶段是对数据进行归约处理，也就是reduce处理。键相等的键值对会调用一次reduce方法。经过这一阶段，数据量会减少。归约后的数据输出到本地的linxu文件中。本阶段默认是没有的，需要用户自己增加这一阶段的代码。</p></li></ol><h2 id="0x02-Reducer任务的执行过程详解"><a href="#0x02-Reducer任务的执行过程详解" class="headerlink" title="0x02 Reducer任务的执行过程详解"></a>0x02 Reducer任务的执行过程详解</h2><p><strong>每个Reducer任务是一个java进程</strong>。Reducer任务接收Mapper任务的输出，归约处理后写入到HDFS中，可以分为如下图所示的几个阶段。</p><p><img src="https://i.loli.net/2019/10/12/HXhC2wvUQLKdV4e.png" alt="Reducer执行过程"></p><ol><li><p>第一阶段是Reducer任务会主动从Mapper任务复制其输出的键值对。Mapper任务可能会有很多，因此Reducer会复制多个Mapper的输出。</p></li><li><p>第二阶段是把复制到Reducer本地数据，全部进行合并，即把分散的数据合并成一个大的数据。再对合并后的数据排序。</p></li><li><p>第三阶段是对排序后的键值对调用reduce方法。键相等的键值对调用一次reduce方法，每次调用会产生零个或者多个键值对。最后把这些输出的键值对写入到HDFS文件中。</p></li></ol><p>在整个MapReduce程序的开发过程中，我们最大的工作量是覆盖map函数和覆盖reduce函数。</p><h2 id="0x03-键值对的编号"><a href="#0x03-键值对的编号" class="headerlink" title="0x03 键值对的编号"></a>0x03 键值对的编号</h2><p>在对Mapper任务、Reducer任务的分析过程中，会看到很多阶段都出现了键值对，读者容易混淆，所以这里对键值对进行编号，方便大家理解键值对的变化情况，如下图所示。</p><p><img src="https://i.loli.net/2019/10/12/q6Y9Sl5ofQCW7LJ.png" alt="键值对"></p><p>在上图中，对于Mapper任务输入的键值对，定义为key1和value1。在map方法中处理后，输出的键值对，定义为key2和value2。reduce方法接收key2和value2，处理后，输出key3和value3。在下文讨论键值对时，可能把key1和value1简写为&lt;k1,v1&gt;，key2和value2简写为&lt;k2,v2&gt;，key3和value3简写为&lt;k3,v3&gt;。</p><h2 id="转载说明"><a href="#转载说明" class="headerlink" title="转载说明"></a>转载说明</h2><p><a href="https://my.oschina.net/itblog/blog/275294" target="_blank" rel="noopener">Hadoop MapReduce执行过程详解（带hadoop例子）</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;MapReduce运行的时候，会通过Mapper运行的任务读取HDFS中的数据文件，然后调用自己的方法，处理数据，最后输出。Reducer任务会接收Mapper任务输出的数据，作为自己的输入数据，调用自己的方法，最后输出到HDFS的文件中。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Hadoop" scheme="https://jordenbruce.com/categories/Hadoop/"/>
+    
+    
+      <category term="mapreduce" scheme="https://jordenbruce.com/tags/mapreduce/"/>
+    
+  </entry>
   
   <entry>
     <title>数据仓库的初级手册</title>
@@ -439,28 +461,6 @@
     
     
       <category term="hadoop" scheme="https://jordenbruce.com/tags/hadoop/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hive自定义函数</title>
-    <link href="https://jordenbruce.com/2019/03/14/hive-udf/"/>
-    <id>https://jordenbruce.com/2019/03/14/hive-udf/</id>
-    <published>2019-03-14T11:11:30.000Z</published>
-    <updated>2019-09-22T09:10:33.216Z</updated>
-    
-    <content type="html"><![CDATA[<p>Hive自带了许多内置函数（Built-in Functions），方便数据的处理分析。可是，有时候内置函数无法满足需求，这就需要自定义函数（User-Defined Functions , UDF）来实现想要的功能。<br><a id="more"></a></p><h2 id="1-创建自定义UDF"><a href="#1-创建自定义UDF" class="headerlink" title="1. 创建自定义UDF"></a>1. 创建自定义UDF</h2><p>编写UDF需要下面两个步骤：</p><ul><li>继承 <code>org.apache.hadoop.hive.ql.exec.UDF</code> </li><li>实现 <code>evaluate</code> 函数，这个函数必须要有返回值，不能设置为void。同时建议使用mapreduce编程模型中的数据类型(Text,IntWritable等)，因为hive语句会被转换为mapreduce任务。</li></ul><p>完整的开发过程 请参考 <a href="https://blog.csdn.net/qq_32653877/article/details/87182898" target="_blank" rel="noopener">Java编写Hive的UDF</a></p><h2 id="2-自定义UDF的部署方式"><a href="#2-自定义UDF的部署方式" class="headerlink" title="2. 自定义UDF的部署方式"></a>2. 自定义UDF的部署方式</h2><p>官方提供了两种部署UDF的方式：</p><ul><li>临时部署（Temporary Functions）</li><li>永久部署（Permanent Functions）</li></ul><p>两者的区别在于：临时部署的方式，只会在当前Session下有效并可用；永久部署的方式，在部署成功后任何一个Hive客户端（重新启动的Hive客户端，已经启动的客户端需要重新加载）都可以使用。</p><h3 id="2-1-临时部署"><a href="#2-1-临时部署" class="headerlink" title="2.1 临时部署"></a>2.1 临时部署</h3><p>这个是最常见的Hive使用方式，通过hive命令来完成UDF的部署；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; add jar /path/to/local.jar; </span><br><span class="line">hive&gt; create temporary function ua_parser as &apos;net.qutoutiao.data.hive.ParseUserAgent&apos;;</span><br></pre></td></tr></table></figure></p><p>建议函数名使用 <strong>下划线命名法</strong>（全部小写字母）。</p><h3 id="2-2-永久部署"><a href="#2-2-永久部署" class="headerlink" title="2.2 永久部署"></a>2.2 永久部署</h3><p>这种方式是 hive 0.13版本以后开始支持的注册方法；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; create function udf.ua_parser </span><br><span class="line">hive&gt; as &apos;net.qutoutiao.data.hive.ParseUserAgent&apos; </span><br><span class="line">hive&gt; using jar &apos;hdfs:///path/to/hive-udf-1.0.jar&apos;;</span><br></pre></td></tr></table></figure></p><p>需要注意的是：函数名称前面一定要带上数据库名称。</p><h2 id="3-函数相关的HQL语句"><a href="#3-函数相关的HQL语句" class="headerlink" title="3. 函数相关的HQL语句"></a>3. 函数相关的HQL语句</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">-- 查看所有函数(内置函数+自定义函数)</span><br><span class="line">show functions;</span><br><span class="line">-- 查看某个函数的使用说明</span><br><span class="line">describe function function_name;</span><br><span class="line">-- 创建临时自定义函数</span><br><span class="line">create temporary function function_name as class_name;</span><br><span class="line">-- 删除临时自定义函数</span><br><span class="line">drop temporary function [if exists] function_name;</span><br><span class="line">-- 创建永久自定义函数</span><br><span class="line">create function [db_name.]function_name as class_name</span><br><span class="line">  [using jar|file|archive &apos;file_uri&apos; [, jar|file|archive &apos;file_uri&apos;] ];</span><br><span class="line">-- 删除永久自定义函数</span><br><span class="line">drop function [if exists] function_name;</span><br><span class="line">-- 重载函数</span><br><span class="line">reload function;</span><br></pre></td></tr></table></figure><h2 id="4-扩展与延伸"><a href="#4-扩展与延伸" class="headerlink" title="4. 扩展与延伸"></a>4. 扩展与延伸</h2><p>Hive自定义函数的扩展，不仅有UDF（User-Defined Functions），还有UDAF（User-Defined Aggregate Functions）和UDTF（User-Defined Table-Generating Functions），详情请参考官方说明。<br>另外，如果数据处理在函数级别不能解决，还可以借助 <code>TRANSFORM</code> 自定义Map和Reduce函数。</p><h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5. 参考"></a>5. 参考</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/HivePlugins" target="_blank" rel="noopener">Creating Custom UDFs</a><br><a href="https://blog.csdn.net/qq_32653877/article/details/87182898" target="_blank" rel="noopener">Java编写Hive的UDF</a><br><a href="http://chaozi204.github.io/blog/hive-udf-deploy/" target="_blank" rel="noopener">Hive UDF 部署方式小结</a><br><a href="https://cwiki.apache.org/confluence/display/Hive/GenericUDAFCaseStudy" target="_blank" rel="noopener">Writing GenericUDAFs</a><br><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Transform" target="_blank" rel="noopener">Hive’s Transform functionality</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Hive自带了许多内置函数（Built-in Functions），方便数据的处理分析。可是，有时候内置函数无法满足需求，这就需要自定义函数（User-Defined Functions , UDF）来实现想要的功能。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Hive" scheme="https://jordenbruce.com/categories/Hive/"/>
-    
-    
-      <category term="udf" scheme="https://jordenbruce.com/tags/udf/"/>
     
   </entry>
   
