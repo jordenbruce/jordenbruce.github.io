@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="hadoop,hive,dw,database,sql,oozie,sqoop,architecture"><title>HDFS架构原理 | JordenBruce</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">HDFS架构原理</h1><a id="logo" href="/.">JordenBruce</a><p class="description">A thousand miles begins with a single step.</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">HDFS架构原理</h1><div class="post-meta">Oct 19, 2019<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 1k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 3</span><span class="post-meta-item-text"> 分钟</span></span></span></div><div class="post-content"><p>HDFS 被设计成适合运行在通用硬件(commodity hardware)上的分布式文件系统，是 Hadoop 应用程序使用的主要分布式存储。HDFS 与现有的分布式文件系统有许多相似之处；但是，与其他分布式文件系统的区别也是很明显的。HDFS 具有高度的容错能力，旨在部署在低成本硬件上；HDFS 提供对应用程序数据的高吞吐量访问，并且适用于具有大数据集的应用程序；HDFS 放宽了一些POSIX要求，以实现对文件系统数据的流式访问。<br><a id="more"></a></p>
+<h2 id="0x00-HDFS-架构"><a href="#0x00-HDFS-架构" class="headerlink" title="0x00 HDFS 架构"></a>0x00 HDFS 架构</h2><p>HDFS (Hadoop Distributed File System) 采用的是 Master/Slave 架构，一个 HDFS 集群包含一个单独的 NameNode 和多个 DataNode 节点，如下图所示：</p>
+<p><img src="https://i.loli.net/2019/10/21/4JgoDXhFeVaukj9.png" alt="HDFS 架构"></p>
+<p>主要由以下几个组件构成：</p>
+<ul>
+<li>NameNode</li>
+<li>Secondary NameNode</li>
+<li>DataNode</li>
+<li>Client</li>
+</ul>
+<p>需要说明的是：类似于磁盘 Block size 概念，Hadoop 集群中文件的存储都是以块的形式存储在 HDFS 中。通过设置 hdfs-site.xml 文件中 dfs.blocksize 参数来配置块大小，默认是128M。</p>
+<h2 id="0x01-文件写入过程"><a href="#0x01-文件写入过程" class="headerlink" title="0x01 文件写入过程"></a>0x01 文件写入过程</h2><p><img src="https://i.loli.net/2019/10/21/5EOiCB2JVQYNswd.png" alt="HDFS 文件写入过程"></p>
+<p>Client 向 HDFS 写入文件的具体过程如下：</p>
+<ol>
+<li><p>Client 调用 DistributedFileSystem 对象的 create 方法，创建一个文件输出流（FSDataOutputStream）对象；</p>
+</li>
+<li><p>通过 DistributedFileSystem 对象与集群的 NameNode 进行一次 RPC 远程调用，在 HDFS 的 Namespace 中创建一个文件条目（Entry），此时该条目没有任何的 Block，NameNode 会返回该数据每个块需要拷贝的 DataNode 地址信息；</p>
+</li>
+<li><p>通过 FSDataOutputStream 对象，开始向 DataNode 写入数据，数据首先被写入 FSDataOutputStream 对象内部的数据队列中，数据队列由 DataStreamer 使用，它通过选择合适的 DataNode 列表来存储副本，从而要求 NameNode 分配新的 block；</p>
+</li>
+<li><p>DataStreamer 将数据包以流式传输的方式传输到分配的第一个 DataNode 中，该数据流将数据包存储到第一个 DataNode 中并将其转发到第二个 DataNode 中，接着第二个 DataNode 节点会将数据包转发到第三个 DataNode 节点；</p>
+</li>
+<li><p>DataNode 确认数据传输完成，最后由第一个 DataNode 通知 client 数据写入成功；</p>
+</li>
+<li><p>完成向文件写入数据，Client 在文件输出流（FSDataOutputStream）对象上调用 close 方法，完成文件写入；</p>
+</li>
+<li><p>调用 DistributedFileSystem 对象的 complete 方法，通知 NameNode 文件写入成功，NameNode 会将相关结果记录到 editlog 中。</p>
+</li>
+</ol>
+<h2 id="0x02-文件读取过程"><a href="#0x02-文件读取过程" class="headerlink" title="0x02 文件读取过程"></a>0x02 文件读取过程</h2><p><img src="https://i.loli.net/2019/10/21/oYipLz9MEq4TyS7.png" alt="HDFS 文件读取过程"></p>
+<p>Client 向 HDFS 读取文件的具体过程如下：</p>
+<ol>
+<li><p>Client 通过 DistributedFileSystem 对象与集群的 NameNode 进行一次 RPC 远程调用，获取文件 block 位置信息；</p>
+</li>
+<li><p>NameNode 返回存储的每个块的 DataNode 列表；</p>
+</li>
+<li><p>Client 将连接到列表中最近的 DataNode；</p>
+</li>
+<li><p>Client 开始从 DataNode 并行读取数据；</p>
+</li>
+<li><p>一旦 Client 获得了所有必须的 block，它就会将这些 block 组合起来形成一个文件。</p>
+</li>
+</ol>
+<p>在处理 Client 的读取请求时，HDFS 会利用机架感知选举最接近 Client 位置的副本，这将会减少读取延迟和带宽消耗。</p>
+<h2 id="0x03-HDFS-遗留问题"><a href="#0x03-HDFS-遗留问题" class="headerlink" title="0x03 HDFS 遗留问题"></a>0x03 HDFS 遗留问题</h2><p>在前面的介绍中，关于 HDFS 1.0 架构的设计缺陷主要有以下两点：</p>
+<ul>
+<li><p>NameNode 的单点问题，如果 NameNode 挂掉了，数据读写都会受到影响，HDFS 整体将变得不可用，这在生产环境中是不可接受的；</p>
+</li>
+<li><p>水平扩展问题，随着集群规模的扩大，1.0 时集群规模达到3000时，会导致整个集群管理的文件数目达到上限（因为 NameNode 要管理整个集群 block 元信息、数据目录信息等）。</p>
+</li>
+</ul>
+<p>为了解决上面的两个问题，Hadoop2.0 提供一套统一的解决方案：</p>
+<ul>
+<li><p>HA（High Availability 高可用方案）：这个是为了解决 NameNode 单点问题；</p>
+</li>
+<li><p>NameNode Federation：是用来解决 HDFS 集群的线性扩展能力。</p>
+</li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html" target="_blank" rel="noopener">HDFS Users Guide</a><br><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-project-dist/hadoop-hdfs/HdfsDesign.html" target="_blank" rel="noopener">HDFS Architecture</a><br><a href="https://www.cnblogs.com/sheng-sjk/p/10624958.html" target="_blank" rel="noopener">Hdfs block数据块大小的设置规则</a><br><a href="https://www.jianshu.com/p/25bdb4b8051e" target="_blank" rel="noopener">HDFS基础架构与各个组件的功能</a><br><a href="https://matt33.com/2018/07/15/hdfs-architecture-learn/" target="_blank" rel="noopener">HDFS 架构学习总结</a><br><a href="https://www.open-open.com/lib/view/open1376228205209.html" target="_blank" rel="noopener">HDFS 原理、架构与特性介绍</a></p>
+</div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>JordenBruce</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2019/10/19/hadoop-hdfs/">https://jordenbruce.com/2019/10/19/hadoop-hdfs/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://jordenbruce.com/2019/10/19/hadoop-hdfs/" data-id="ck20gxs1y0002n8n3o0us8uhf" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMElEQVR42u3aQW7DMAwF0dz/0u42QGt3+KkEkDhaBYlj63lBkCJfL7yut/X7G/Lr853vnrJ4yZAhY1vG9bjItsiv5DN/WX9QZciQMYBBQmH18c/Bmgfu573JkCFDBk/gOoGbfJYhQ4YMziAlLi+Dq9fIkCFjMoOnaFdxZcniB2txGTJkbMjgp+7f//yR/oYMGTK2YmSh8zmxqzYmr/aSIUPG2Qwe4HhCtjY1LOxHhgwZAxi8rciP6viGSMth8eSaDBkyNmFUx7/6ZXD1+AyFbBkyZBzNyB6TPThLPUlbVIYMGRMY1aO0rHlAxsiqSacMGTKmMbJjMlJL8ms65bQMGTJOZfAiNgua/J7lTPb9exkyZAxg8GP67LCsXxL/8y8ZMmSMYfBbd47YOkEWVeEyZMg4jsFHH3iorV7Tbw/IkCHjbAa/HTlKyxoGncbDbS0uQ4aM4xjVcNkvel9rlwwZMo5m8Cwru5IH7uqwhQwZMmSQwYssQSStiOqLkCFDxgQGD228DcnHv6oNzlu2DBkyBjCygQnyCrL7L85qZciQcRCDby7bdLVULvxLhgwZhzKu4uLtzE4BTEro26RQhgwZxzGyYJcd4vNxDT6cEU69yZAhY0MGD7L8kVlIJb/KkCFjMqMa+HjS1imPC69AhgwZMkAwzUYlqi+rNWwhQ4aMMYwspJLASpLFxamhDBkytmLwZgAPxOjxeA/LanEZMmRsyOClY5i0Re3J7CXKkCHjOMYPLQiyUPsXTjQAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/hdfs/">hdfs</a></div><div class="post-nav"><a class="next" href="/2019/10/16/hadoop-yarn/">YARN技术原理</a></div><div id="container"></div><link rel="stylesheet" type="text/css" href="//unpkg.com/gitalk/dist/gitalk.css?v=0.0.0"><script type="text/javascript" src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js?v=0.0.0"></script><script type="text/javascript" src="//unpkg.com/gitalk/dist/gitalk.min.js?v=0.0.0"></script><script>var gitalk = new Gitalk({
+  clientID: '24d554575e1f11313fa9',
+  clientSecret: '8de4e32b66c3386a10942a3c5e29cf09b8954c26',
+  repo: 'jordenbruce.github.io',
+  owner: 'jordenbruce',
+  admin: ['jordenbruce'],
+  id: md5(location.pathname),
+  distractionFreeMode: false
+})
+gitalk.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://jordenbruce.com"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Data-Warehouse/">Data Warehouse</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/modeling/" style="font-size: 15px;">modeling</a> <a href="/tags/hdfs/" style="font-size: 15px;">hdfs</a> <a href="/tags/hadoop/" style="font-size: 15px;">hadoop</a> <a href="/tags/yarn/" style="font-size: 15px;">yarn</a> <a href="/tags/mapreduce/" style="font-size: 15px;">mapreduce</a> <a href="/tags/hive/" style="font-size: 15px;">hive</a> <a href="/tags/sqoop/" style="font-size: 15px;">sqoop</a> <a href="/tags/workflow/" style="font-size: 15px;">workflow</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/10/19/hadoop-hdfs/">HDFS架构原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/16/hadoop-yarn/">YARN技术原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/13/hadoop-mapreduce/">MapReduce执行过程详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/12/junior-manual/">数据仓库的初级手册</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/workflow/">常见的任务调度系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/growth-model/">简化版的增长模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/08/sqoop-cli/">Sqoop命令行的导入与导出</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-string/">HiveQL的字符串函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-date/">HiveQL的日期函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/05/hql-function-math/">HiveQL的数学函数</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://hao.199it.com" title="大数据导航" target="_blank">大数据导航</a><ul></ul><a href="https://www.infoq.cn" title="InfoQ" target="_blank">InfoQ</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">JordenBruce.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
