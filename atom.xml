@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-10-22T12:36:09.282Z</updated>
+  <updated>2019-11-02T09:47:29.277Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hive体系结构</title>
+    <link href="https://jordenbruce.com/2019/11/02/hive-architecture/"/>
+    <id>https://jordenbruce.com/2019/11/02/hive-architecture/</id>
+    <published>2019-11-02T03:46:32.000Z</published>
+    <updated>2019-11-02T09:47:29.277Z</updated>
+    
+    <content type="html"><![CDATA[<p>Hive 最初是由 FaceBook 公司开发的一个基于 Hadoop 框架并且开源的一个数据仓库工具，后贡献给了 Apache 基金会由 Apache 来进行维护和更新。Hive 可以将结构化的文件映射为一张数据表，但并不提供查询功能，而是将 HiveQL 转化为 MapReduce 任务进行运行。同时，Hive 本身不存储数据，只是存储数据的路径或者操作信息，真的数据是存储在可靠的文件系统当中（如HDFS、Derby等）。<br><a id="more"></a></p><h2 id="0x00-Hive-架构"><a href="#0x00-Hive-架构" class="headerlink" title="0x00 Hive 架构"></a>0x00 Hive 架构</h2><p><img src="https://i.loli.net/2019/11/02/VUOGX45StkYbwMF.jpg" alt="Hive 架构"></p><p>Hive 架构主要包括如下组件：CLI（command line interface）、JDBC/ODBC、Web GUI（Hive WEB Interface）、Thrift Server、Metastore 和 Driver(Complier、Optimizer和Executor)，这些组件可以分为两大类：服务端组件和客户端组件。</p><p>(1) 客户端组件</p><ul><li>CLI：最常用的用户接口，cli 启动的时候，会同时启动一个 Hive 副本；</li><li>JDBC/ODBC：Client 是 Hive 的客户端，用户连接至 Hive Server。在启动 Client 模式的时候，需要指出 Hive Server 所在节点，并且在该节点启动 Hive Server ；</li><li>HWI：通过浏览器访问 Hive；</li></ul><p>(2) 服务端组件</p><ul><li>Thrift Server：Thrift 是 facebook 开发的一个软件框架，它用来进行可扩展且跨语言的服务的开发，hive 集成了Thrift Server 服务，能让不同的编程语言调用 hive 的接口；</li><li>Metastore：元数据服务组件，这个组件用于存储 hive 的元数据，包括表名、表所属的数据库、表的拥有者、列/分区字段、表的类型、表的数据所在目录等内容。hive 的元数据存储在关系数据库里，支持 derby、mysql 两种关系型数据库；</li><li>Driver：包括 Complier、Optimizer 和 Executor，它们的作用是将我们写的 HiveQL 语句进行解析、编译、优化，生成执行计划，然后调用底层的 MapReduce 计算框架；</li></ul><h2 id="0x01-Hive-工作原理"><a href="#0x01-Hive-工作原理" class="headerlink" title="0x01 Hive 工作原理"></a>0x01 Hive 工作原理</h2><p><img src="https://i.loli.net/2019/11/02/GIvJ2RqS6d3Hf4i.png" alt="Hive 查询的工作流程"></p><ol><li>UI 提交查询（HiveQL）给 Driver；</li><li>Driver 为查询创建会话句柄，并将查询发给 Complier 生成执行计划；</li><li>Complier 从 Metastore 获取必要的元数据信息；</li><li>由 Complier 生成的执行计划是 作业的DAG，包括三种作业：MapReduce 作业、元数据操作、HDFS 操作；</li><li>Execution Engine 将不同作业提交给对应的组件；</li><li>Execution Engine 将匹配上的查询结果经过 Driver 发送给 UI。</li></ol><p>细心的读者会发现，上述执行过程还是 JobTracker 版本，从 Hadoop-2.x 开始升级为 YARN，MapReduce 作为一种应用程序运行在 YARN 框架下。</p><h2 id="0x02-Hive-特点"><a href="#0x02-Hive-特点" class="headerlink" title="0x02 Hive 特点"></a>0x02 Hive 特点</h2><p>(1) 优点</p><ul><li>简单容易上手：提供了类 SQL 查询语言 HiveQL</li><li>可扩展：为超大数据集设计了计算/扩展能力（MR 作为计算引擎，HDFS 作为存储系统）</li><li>提供统一的元数据管理</li><li>延展性：Hive 支持用户自定义函数，还允许 TRANSFORM 嵌入不同语言的 map-reduce 脚本</li><li>容错：良好的容错性，节点出现问题 SQL 仍可完成执行</li></ul><p>(2) 缺点</p><ul><li>HiveQL 表达能力有限（迭代式算法，数据挖掘）</li><li>hive 效率比较低（mapreduce，调优）</li><li>hive 可控性差</li></ul><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/Design" target="_blank" rel="noopener">Hive Architecture Overview</a><br><a href="https://www.cnblogs.com/zimo-jing/p/9028949.html" target="_blank" rel="noopener">深入学习Hive应用场景及架构原理</a><br><a href="https://blog.csdn.net/m0_37914799/article/details/85109143" target="_blank" rel="noopener">Hive的架构及元数据三种存储模式</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Hive 最初是由 FaceBook 公司开发的一个基于 Hadoop 框架并且开源的一个数据仓库工具，后贡献给了 Apache 基金会由 Apache 来进行维护和更新。Hive 可以将结构化的文件映射为一张数据表，但并不提供查询功能，而是将 HiveQL 转化为 MapReduce 任务进行运行。同时，Hive 本身不存储数据，只是存储数据的路径或者操作信息，真的数据是存储在可靠的文件系统当中（如HDFS、Derby等）。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Hadoop" scheme="https://jordenbruce.com/categories/Hadoop/"/>
+    
+    
+      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
+    
+  </entry>
   
   <entry>
     <title>HDFS架构原理</title>
@@ -102,9 +124,9 @@
     
       <category term="hadoop" scheme="https://jordenbruce.com/tags/hadoop/"/>
     
-      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
-    
       <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
+    
+      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
     
       <category term="sqoop" scheme="https://jordenbruce.com/tags/sqoop/"/>
     
@@ -439,28 +461,6 @@
     
     
       <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>手动搭建Hadoop分布式运行环境</title>
-    <link href="https://jordenbruce.com/2019/09/15/hadoop-install/"/>
-    <id>https://jordenbruce.com/2019/09/15/hadoop-install/</id>
-    <published>2019-09-15T04:56:42.000Z</published>
-    <updated>2019-10-25T12:49:54.021Z</updated>
-    
-    <content type="html"><![CDATA[<p>当开始着手实践 Hadoop 时，安装 Hadoop 往往会成为新手的一道门槛。尽管安装其实很简单，书上有写到，官方网站也有 Hadoop 安装配置教程，但由于对 Linux 环境不熟悉，书上跟官网上简略的安装步骤新手往往 Hold 不住。加之网上不少教程也甚是坑，导致新手折腾老几天愣是没装好，很是打击学习热情。<br><a id="more"></a></p><h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>本教程详细记录了 hadoop 安装的全过程，还有配置文件的参数设置，一次性解决安装过程的所有问题。</p><h2 id="0x01-虚拟服务器"><a href="#0x01-虚拟服务器" class="headerlink" title="0x01 虚拟服务器"></a>0x01 虚拟服务器</h2><p>VMware Workstation 11.0</p><table><thead><tr><th>host</th><th>ip</th><th>os</th><th>role</th><th>cpu</th><th>memory</th><th>disk</th></tr></thead><tbody><tr><td>mdw01</td><td>192.168.100.186</td><td>CentOS 6.8 x64</td><td>master</td><td>1*2</td><td>8GB</td><td>30GB</td></tr><tr><td>sdw02</td><td>192.168.100.187</td><td>CentOS 6.8 x64</td><td>slave</td><td>1*2</td><td>4GB</td><td>30GB</td></tr><tr><td>sdw03</td><td>192.168.100.188</td><td>CentOS 6.8 x64</td><td>slave</td><td>1*2</td><td>4GB</td><td>30GB</td></tr></tbody></table><h2 id="0x02-系统配置"><a href="#0x02-系统配置" class="headerlink" title="0x02 系统配置"></a>0x02 系统配置</h2><p>(1) 修改Hostname</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hostname</span><br><span class="line">cat /etc/sysconfig/network</span><br><span class="line">vim /etc/hosts</span><br></pre></td></tr></table></figure><p>(2) 关闭SELinux</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">setenforce 0</span><br><span class="line">vim /etc/selinux/config</span><br><span class="line">sestatus</span><br></pre></td></tr></table></figure><p>(3) 关闭iptables</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">service iptables stop</span><br><span class="line">chkconfig iptables off</span><br></pre></td></tr></table></figure><p>(4) 安装JDK</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cd /opt/</span><br><span class="line">tar -xf jdk-8u112-linux-x64.tar.gz</span><br><span class="line">chown -R root:root jdk1.8.0_112/</span><br><span class="line">ln -s /opt/jdk1.8.0_112/ /opt/java</span><br><span class="line">vim /etc/profile</span><br><span class="line"></span><br><span class="line">source /etc/profile</span><br><span class="line">java -version</span><br><span class="line">rm -f jdk-8u112-linux-x64.tar.gz</span><br></pre></td></tr></table></figure><p>(5) 免密登陆ssh</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/ssh/sshd_config</span><br><span class="line">/etc/init.d/sshd restart</span><br><span class="line"></span><br><span class="line">useradd hadoop</span><br><span class="line">passwd hadoop</span><br><span class="line"></span><br><span class="line">ls -l /etc/sudoers</span><br><span class="line">chmod 640 /etc/sudoers</span><br><span class="line">vim /etc/sudoers</span><br><span class="line">chmod 0440 /etc/sudoers</span><br><span class="line"></span><br><span class="line">su hadoop</span><br><span class="line">ssh-keygen</span><br><span class="line">cd ~/.ssh/</span><br><span class="line">cat id_rsa.pub &gt;&gt; authorized_keys</span><br><span class="line">chmod 700 ~/.ssh</span><br><span class="line">chmod 600 ~/.ssh/authorized_keys</span><br><span class="line">scp authorized_keys hadoop@sdw02:~/.ssh/</span><br><span class="line">ssh hadoop@sdw03</span><br></pre></td></tr></table></figure><p>(6) 时间同步NTP服务</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">rpm -q ntp</span><br><span class="line">chkconfig ntpd on</span><br><span class="line">ntpdate -u 202.112.10.36</span><br><span class="line">hwclock -w</span><br><span class="line">vim /etc/ntp.conf</span><br><span class="line">vim /etc/sysconfig/ntpd</span><br><span class="line">service ntpd start</span><br><span class="line">netstat -tlunp | grep ntp</span><br><span class="line">ntpq -p</span><br></pre></td></tr></table></figure><h2 id="0x03-安装Hadoop"><a href="#0x03-安装Hadoop" class="headerlink" title="0x03 安装Hadoop"></a>0x03 安装Hadoop</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">chown -R hadoop:hadoop /data/</span><br><span class="line">cd /data/</span><br><span class="line">tar -xf hadoop-2.6.4.tar.gz</span><br><span class="line">ln -s /data/hadoop-2.6.4/ /data/hadoop</span><br><span class="line">vim ~/.bashrc</span><br><span class="line"></span><br><span class="line">cd /data/hadoop/etc/hadoop</span><br><span class="line">vim hadoop-env.sh</span><br><span class="line">#vim yarn-env.sh</span><br><span class="line">vim core-site.xml</span><br><span class="line">vim hdfs-site.xml</span><br><span class="line">vim mapred-site.xml</span><br><span class="line">vim yarn-site.xml</span><br><span class="line">vim slaves</span><br><span class="line"></span><br><span class="line">cd /data/hadoop/bin/</span><br><span class="line">./hdfs namenode -format</span><br><span class="line">cd /data/hadoop/sbin/</span><br><span class="line">./start-dfs.sh</span><br><span class="line">./start-yarn.sh</span><br><span class="line">./mr-jobhistory-daemon.sh start historyserver</span><br><span class="line">./yarn-daemon.sh start proxyserver</span><br><span class="line"></span><br><span class="line">./stop-all.sh</span><br></pre></td></tr></table></figure><p>配置文件的详细参数设置，请参考 <a href="https://github.com/jordenbruce/archive/blob/master/hadoop_conf_file.zip" target="_blank" rel="noopener">hadoop_conf_files</a></p><p>安装完成后，访问下HDFS和Yarn地址：<br>HDFS：<a href="http://mdw01:50070/dfshealth.html#tab-overview" target="_blank" rel="noopener">http://mdw01:50070/dfshealth.html#tab-overview</a><br>Yarn：<a href="http://mdw01:8088/cluster" target="_blank" rel="noopener">http://mdw01:8088/cluster</a></p><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://jordenbruce.com/2019/10/12/junior-manual/">数据仓库的初级手册</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;当开始着手实践 Hadoop 时，安装 Hadoop 往往会成为新手的一道门槛。尽管安装其实很简单，书上有写到，官方网站也有 Hadoop 安装配置教程，但由于对 Linux 环境不熟悉，书上跟官网上简略的安装步骤新手往往 Hold 不住。加之网上不少教程也甚是坑，导致新手折腾老几天愣是没装好，很是打击学习热情。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
-    
-    
-      <category term="hadoop" scheme="https://jordenbruce.com/tags/hadoop/"/>
     
   </entry>
   
