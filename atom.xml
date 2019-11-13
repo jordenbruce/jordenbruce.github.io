@@ -260,8 +260,8 @@
   
   <entry>
     <title>数据仓库的初级手册</title>
-    <link href="https://jordenbruce.com/2019/10/12/junior-manual/"/>
-    <id>https://jordenbruce.com/2019/10/12/junior-manual/</id>
+    <link href="https://jordenbruce.com/2019/10/12/dw-junior-manual/"/>
+    <id>https://jordenbruce.com/2019/10/12/dw-junior-manual/</id>
     <published>2019-10-12T12:54:02.000Z</published>
     <updated>2019-10-25T13:00:41.433Z</updated>
     
@@ -276,13 +276,13 @@
       <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
     
     
-      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
-    
       <category term="hadoop" scheme="https://jordenbruce.com/tags/hadoop/"/>
     
       <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
     
       <category term="sqoop" scheme="https://jordenbruce.com/tags/sqoop/"/>
+    
+      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
     
       <category term="workflow" scheme="https://jordenbruce.com/tags/workflow/"/>
     
