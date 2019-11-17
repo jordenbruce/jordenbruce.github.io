@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-11-17T03:59:18.156Z</updated>
+  <updated>2019-11-17T04:02:26.213Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hive数据倾斜之GroupBy</title>
+    <link href="https://jordenbruce.com/2019/11/16/hive-skew-group/"/>
+    <id>https://jordenbruce.com/2019/11/16/hive-skew-group/</id>
+    <published>2019-11-16T11:36:45.000Z</published>
+    <updated>2019-11-17T04:02:26.213Z</updated>
+    
+    <content type="html"><![CDATA[<p>Hive 中分组聚合的常用子句是 Group By；在执行过程中，将 Group By 的字段组合为map的输出key值，利用 MapReduce 的排序，在reduce阶段保存LastKey区分不同的key；如果 Group By 的字段组合出现了数据分布不均匀，就会导致 Hive 数据倾斜；另外 Group By 一般与聚合函数一起使用，比如 SUM() 和 COUNT() 等。<br><a id="more"></a></p><h2 id="0x00-Group-By-典型场景"><a href="#0x00-Group-By-典型场景" class="headerlink" title="0x00 Group By 典型场景"></a>0x00 Group By 典型场景</h2><p>假设有一张表 dwd_bhv_log_di(logid,uuid,city,provice,dt)，需求是统计每个省份的UV与PV；</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---常规实现方式</span><br><span class="line">select provice, count(distinct uuid) uv, count(logid) pv</span><br><span class="line">from dwd_bhv_log_di</span><br><span class="line">where dt = &apos;2019-11-10&apos;</span><br><span class="line">group by provice;</span><br></pre></td></tr></table></figure><h2 id="0x01-Group-By-优化"><a href="#0x01-Group-By-优化" class="headerlink" title="0x01 Group By 优化"></a>0x01 Group By 优化</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">set hive.map.aggr=true;</span><br><span class="line">set mapred.reduce.tasks=10;</span><br><span class="line">set hive.groupby.skewdata=true;</span><br><span class="line"></span><br><span class="line">select provice, sum(part_uv) uv, sum(part_pv) pv</span><br><span class="line">from (</span><br><span class="line">  select provice, part, count(uuid) part_uv, sum(part_pv) part_pv</span><br><span class="line">  from (</span><br><span class="line">    select provice, uuid, count(logid) part_pv, ceil(rand()*100) part</span><br><span class="line">from dwd_bhv_log_di</span><br><span class="line">where dt = &apos;2019-11-10&apos;</span><br><span class="line">group by provice, uuid</span><br><span class="line">  ) t1</span><br><span class="line">  group by provice, part</span><br><span class="line">) t2</span><br><span class="line">group by provice;</span><br></pre></td></tr></table></figure><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://jordenbruce.com/2019/10/13/hadoop-mapreduce/">MapReduce执行过程详解</a><br><a href="https://jordenbruce.com/2019/09/26/hql-select/">HiveQL的Select语句</a><br><a href="https://blog.csdn.net/u013668852/article/details/79866931" target="_blank" rel="noopener">Hive Group By的实现原理</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Hive 中分组聚合的常用子句是 Group By；在执行过程中，将 Group By 的字段组合为map的输出key值，利用 MapReduce 的排序，在reduce阶段保存LastKey区分不同的key；如果 Group By 的字段组合出现了数据分布不均匀，就会导致 Hive 数据倾斜；另外 Group By 一般与聚合函数一起使用，比如 SUM() 和 COUNT() 等。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
+    
+    
+      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
+    
+  </entry>
   
   <entry>
     <title>Hive数据倾斜之Join</title>
@@ -28,28 +50,6 @@
     <summary type="html">
     
       &lt;p&gt;按照 Kimball 维度模型设计出来的数据表，在开发 ETL 的过程中，不可避免地会使用到多表 Join 关联。在 Join 关联两个表时，每个表 Map 端输出的 key 会带上表别名标识，经过 shuffle 分发到 Reduce 端就有可能会出现数据分布不均匀，从而造成数据倾斜，影响业务的数据质量。然而，相对 count(distinct) 来说，Join 产生数据倾斜的场景会多一些，本文将会介绍几种 Join 典型场景并给出优化实践。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
-    
-    
-      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hive数据倾斜之GroupBy</title>
-    <link href="https://jordenbruce.com/2019/11/16/hive-skew-group/"/>
-    <id>https://jordenbruce.com/2019/11/16/hive-skew-group/</id>
-    <published>2019-11-16T01:56:45.000Z</published>
-    <updated>2019-11-17T03:59:38.655Z</updated>
-    
-    <content type="html"><![CDATA[<p>Hive 中分组聚合的常用子句是 Group By；在执行过程中，将 Group By 的字段组合为map的输出key值，利用 MapReduce 的排序，在reduce阶段保存LastKey区分不同的key；如果 Group By 的字段组合出现了数据分布不均匀，就会导致 Hive 数据倾斜；另外 Group By 一般与聚合函数一起使用，比如 SUM() 和 COUNT() 等。<br><a id="more"></a></p><h2 id="0x00-Group-By-典型场景"><a href="#0x00-Group-By-典型场景" class="headerlink" title="0x00 Group By 典型场景"></a>0x00 Group By 典型场景</h2><p>假设有一张表 dwd_bhv_log_di(logid,uuid,city,provice,dt)，需求是统计每个省份的UV与PV；</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---常规实现方式</span><br><span class="line">select provice, count(distinct uuid) uv, count(logid) pv</span><br><span class="line">from dwd_bhv_log_di</span><br><span class="line">where dt = &apos;2019-11-10&apos;</span><br><span class="line">group by provice;</span><br></pre></td></tr></table></figure><h2 id="0x01-Group-By-优化"><a href="#0x01-Group-By-优化" class="headerlink" title="0x01 Group By 优化"></a>0x01 Group By 优化</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">set hive.map.aggr=true;</span><br><span class="line">set mapred.reduce.tasks=10;</span><br><span class="line">set hive.groupby.skewdata=true;</span><br><span class="line"></span><br><span class="line">select provice, sum(part_uv) uv, sum(part_pv) pv</span><br><span class="line">from (</span><br><span class="line">  select provice, part, count(uuid) part_uv, sum(part_pv) part_pv</span><br><span class="line">  from (</span><br><span class="line">    select provice, uuid, count(logid) part_pv, ceil(rand()*100) part</span><br><span class="line">from dwd_bhv_log_di</span><br><span class="line">where dt = &apos;2019-11-10&apos;</span><br><span class="line">group by provice, uuid</span><br><span class="line">  ) t1</span><br><span class="line">  group by provice, part</span><br><span class="line">) t2</span><br><span class="line">group by provice;</span><br></pre></td></tr></table></figure><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://jordenbruce.com/2019/10/13/hadoop-mapreduce/">MapReduce执行过程详解</a><br><a href="https://jordenbruce.com/2019/09/26/hql-select/">HiveQL的Select语句</a><br><a href="https://blog.csdn.net/u013668852/article/details/79866931" target="_blank" rel="noopener">Hive Group By的实现原理</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Hive 中分组聚合的常用子句是 Group By；在执行过程中，将 Group By 的字段组合为map的输出key值，利用 MapReduce 的排序，在reduce阶段保存LastKey区分不同的key；如果 Group By 的字段组合出现了数据分布不均匀，就会导致 Hive 数据倾斜；另外 Group By 一般与聚合函数一起使用，比如 SUM() 和 COUNT() 等。&lt;br&gt;
     
     </summary>
     
@@ -342,13 +342,13 @@
       <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
     
     
+      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
+    
       <category term="hadoop" scheme="https://jordenbruce.com/tags/hadoop/"/>
     
       <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
     
       <category term="sqoop" scheme="https://jordenbruce.com/tags/sqoop/"/>
-    
-      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
     
       <category term="workflow" scheme="https://jordenbruce.com/tags/workflow/"/>
     
