@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-11-17T12:05:43.951Z</updated>
+  <updated>2019-11-22T13:36:56.415Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -21,9 +21,9 @@
     <link href="https://jordenbruce.com/2019/11/17/hadoop-yarn-scheduler/"/>
     <id>https://jordenbruce.com/2019/11/17/hadoop-yarn-scheduler/</id>
     <published>2019-11-17T11:11:58.000Z</published>
-    <updated>2019-11-17T12:05:43.951Z</updated>
+    <updated>2019-11-22T13:36:56.415Z</updated>
     
-    <content type="html"><![CDATA[<p>理想情况下，我们应用对 Yarn 资源的请求应该立刻得到满足，但现实情况资源往往是有限的，特别是在一个很繁忙的集群，一个应用资源的请求经常需要等待一段时间才能的到相应的资源。在 Yarn 中，负责给应用分配资源的是 Scheduler 调度器；而调度本身就是一个难题，很难找到一个完美的策略可以解决所有的应用场景。为此，Yarn 提供了三种调度器和可配置的策略供我们选择。<br><a id="more"></a></p><h2 id="0x00-FIFO-Scheduler"><a href="#0x00-FIFO-Scheduler" class="headerlink" title="0x00 FIFO Scheduler"></a>0x00 FIFO Scheduler</h2><p>FIFO Scheduler 把应用按提交的顺序排成一个队列，这是一个先进先出队列，在进行资源分配的时候，先给队列中最头上的应用进行分配资源，待最头上的应用需求满足后再给下一个分配，以此类推。 </p><p><img src="https://i.loli.net/2019/11/17/z4G5bl3PgFjEV87.png" alt="FIFO Scheduler"></p><p>FIFO Scheduler 它并不适用于共享集群。大的应用可能会占用所有集群资源，这就导致其它应用被阻塞。</p><h2 id="0x01-Capacity-Scheduler"><a href="#0x01-Capacity-Scheduler" class="headerlink" title="0x01 Capacity Scheduler"></a>0x01 Capacity Scheduler</h2><p>Capacity 调度器，有一个专门的队列用来运行小任务，但是为小任务专门设置一个队列会预先占用一定的集群资源，这就导致大任务的执行时间会落后于使用FIFO调度器时的时间。</p><p><img src="https://i.loli.net/2019/11/17/PEaQlMzkgs4vbeq.png" alt="Capacity Scheduler"></p><p>Capacity 调度器允许多个组织共享整个集群，每个组织可以获得集群的一部分计算能力。通过为每个组织分配专门的队列，然后再为每个队列分配一定的集群资源，这样整个集群就可以通过设置多个队列的方式给多个组织提供服务了。除此之外，队列内部又可以垂直划分，这样一个组织内部的多个成员就可以共享这个队列资源了，在一个队列内部，资源的调度是采用的是先进先出(FIFO)策略。 </p><p>当队列已满，Capacity 调度器不会强制释放Container，当一个队列资源不够用时，这个队列只能获得其它队列释放后的Container资源，这个称为“弹性队列”，也可以设置最大值，防止过多占用其他队列的资源。 </p><h2 id="0x02-Fair-Scheduler"><a href="#0x02-Fair-Scheduler" class="headerlink" title="0x02 Fair Scheduler"></a>0x02 Fair Scheduler</h2><p>Fair 调度器中，我们不需要预先占用一定的系统资源，Fair调度器会为所有运行的job动态的调整系统资源。如下图所示，当第一个大job提交时，只有这一个job在运行，此时它获得了所有集群资源；当第二个小任务提交后，Fair调度器会分配一半资源给这个小任务，让这两个任务公平的共享集群资源。 </p><p><img src="https://i.loli.net/2019/11/17/Y97D6UeqdlLRivj.png" alt="Fair Scheduler"></p><p>需要注意的是，在上图Fair调度器中，从第二个任务提交到获得资源会有一定的延迟，因为它需要等待第一个任务释放占用的Container。小任务执行完成之后也会释放自己占用的资源，大任务又获得了全部的系统资源。最终的效果就是Fair调度器既提高了的资源利用率又能保证小任务及时完成。 </p><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html" target="_blank" rel="noopener">Hadoop: Capacity Scheduler</a><br><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-yarn/hadoop-yarn-site/FairScheduler.html" target="_blank" rel="noopener">Hadoop: Fair Scheduler</a><br><a href="https://blog.csdn.net/suifeng3051/article/details/49508261" target="_blank" rel="noopener">Yarn 调度器Scheduler详解</a></p>]]></content>
+    <content type="html"><![CDATA[<p>理想情况下，我们应用对 Yarn 资源的请求应该立刻得到满足，但现实情况资源往往是有限的，特别是在一个很繁忙的集群，一个应用资源的请求经常需要等待一段时间才能的到相应的资源。在 Yarn 中，负责给应用分配资源的是 Scheduler 调度器；而调度本身就是一个难题，很难找到一个完美的策略可以解决所有的应用场景。为此，Yarn 提供了三种调度器和可配置的策略供我们选择。<br><a id="more"></a></p><h2 id="0x00-FIFO-Scheduler"><a href="#0x00-FIFO-Scheduler" class="headerlink" title="0x00 FIFO Scheduler"></a>0x00 FIFO Scheduler</h2><p>FIFO Scheduler 把应用按提交的顺序排成一个队列，这是一个先进先出队列，在进行资源分配的时候，先给队列中最头上的应用进行分配资源，待最头上的应用需求满足后再给下一个分配，以此类推。 </p><p><img src="https://i.loli.net/2019/11/17/z4G5bl3PgFjEV87.png" alt="FIFO Scheduler"></p><p>FIFO Scheduler 它并不适用于共享集群。大的应用可能会占用所有集群资源，这就导致其它应用被阻塞。</p><h2 id="0x01-Capacity-Scheduler"><a href="#0x01-Capacity-Scheduler" class="headerlink" title="0x01 Capacity Scheduler"></a>0x01 Capacity Scheduler</h2><p>Capacity 调度器，有一个专门的队列用来运行小任务，但是为小任务专门设置一个队列会预先占用一定的集群资源，这就导致大任务的执行时间会落后于使用FIFO调度器时的时间。</p><p><img src="https://i.loli.net/2019/11/17/PEaQlMzkgs4vbeq.png" alt="Capacity Scheduler"></p><p>Capacity 调度器允许多个组织共享整个集群，每个组织可以获得集群的一部分计算能力。通过为每个组织分配专门的队列，然后再为每个队列分配一定的集群资源，这样整个集群就可以通过设置多个队列的方式给多个组织提供服务了。除此之外，队列内部又可以垂直划分，这样一个组织内部的多个成员就可以共享这个队列资源了，在一个队列内部，资源的调度是采用的是先进先出(FIFO)策略。 </p><p>当队列已满，Capacity 调度器不会强制释放Container，当一个队列资源不够用时，这个队列只能获得其它队列释放后的Container资源，这个称为“弹性队列”，也可以设置最大值，防止过多占用其他队列的资源。 </p><h2 id="0x02-Fair-Scheduler"><a href="#0x02-Fair-Scheduler" class="headerlink" title="0x02 Fair Scheduler"></a>0x02 Fair Scheduler</h2><p>Fair 调度器中，我们不需要预先占用一定的系统资源，Fair调度器会为所有运行的job动态的调整系统资源。如下图所示，当第一个大job提交时，只有这一个job在运行，此时它获得了所有集群资源；当第二个小任务提交后，Fair调度器会分配一半资源给这个小任务，让这两个任务公平的共享集群资源。 </p><p><img src="https://i.loli.net/2019/11/17/Y97D6UeqdlLRivj.png" alt="Fair Scheduler"></p><p>需要注意的是，在上图Fair调度器中，从第二个任务提交到获得资源会有一定的延迟，因为它需要等待第一个任务释放占用的Container。小任务执行完成之后也会释放自己占用的资源，大任务又获得了全部的系统资源。最终的效果就是Fair调度器既提高了的资源利用率又能保证小任务及时完成。 </p><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html" target="_blank" rel="noopener">Hadoop: Capacity Scheduler</a><br><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-yarn/hadoop-yarn-site/FairScheduler.html" target="_blank" rel="noopener">Hadoop: Fair Scheduler</a><br><a href="https://blog.csdn.net/suifeng3051/article/details/49508261" target="_blank" rel="noopener">Yarn 调度器Scheduler详解</a><br><a href="https://jordenbruce.com/2019/10/16/hadoop-yarn/">YARN技术原理</a></p>]]></content>
     
     <summary type="html">
     
@@ -364,13 +364,13 @@
       <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
     
     
-      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
-    
       <category term="hadoop" scheme="https://jordenbruce.com/tags/hadoop/"/>
     
       <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
     
       <category term="sqoop" scheme="https://jordenbruce.com/tags/sqoop/"/>
+    
+      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
     
       <category term="workflow" scheme="https://jordenbruce.com/tags/workflow/"/>
     
