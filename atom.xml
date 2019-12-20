@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2019-12-12T11:31:46.159Z</updated>
+  <updated>2019-12-20T09:15:45.218Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hive存储格式与压缩</title>
+    <link href="https://jordenbruce.com/2019/12/20/hive-fileformat-compress/"/>
+    <id>https://jordenbruce.com/2019/12/20/hive-fileformat-compress/</id>
+    <published>2019-12-20T08:03:34.000Z</published>
+    <updated>2019-12-20T09:15:45.218Z</updated>
+    
+    <content type="html"><![CDATA[<p>采用Hive作为数据仓库工具，由于数仓既要存储来自不同系统的数据源，还要执行ETL数据任务，所以Hive不仅提供了多种存储格式（TEXTFILE，ORC，PARQUET），降低了存储成本，而且还支持多种压缩方式（zlib，snappy，bzip2），提高了计算效率。那么，不同的业务场景该选择哪一种存储格式或压缩方式呢？<br><a id="more"></a></p><h2 id="0x00-存储格式"><a href="#0x00-存储格式" class="headerlink" title="0x00 存储格式"></a>0x00 存储格式</h2><p>TEXTFILE是Hive默认的存储格式，存储空间消耗比较大，并且压缩的text无法分割和合并，查询的效率最低，可以直接存储，加载数据的速度最高；</p><p>ORC存储格式是一种Hadoop生态圈中的列式存储格式，它的产生早在2013年初，最初产生自Apache Hive，用于降低Hadoop数据存储空间和加速Hive查询速度。</p><p>Parquet仅仅是一种存储格式，它是语言、平台无关的，并且不需要和任何一种数据处理框架绑定，目前能够和Parquet适配的组件很多，基本上通常使用的查询引擎和计算框架都已适配，并且可以很方便的将其它序列化工具生成的数据转换成Parquet格式。</p><table><thead><tr><th>文件格式</th><th>存储方式</th><th>压缩比</th><th>查询速度</th><th>文件拆分</th><th>支持压缩</th></tr></thead><tbody><tr><td>TEXTFILE</td><td>行式</td><td>小</td><td>慢</td><td>不可切分</td><td>NONE, GZIP</td></tr><tr><td>ORC</td><td>列式</td><td>大</td><td>快</td><td>可切分</td><td>NONE, ZLIB, SNAPPY</td></tr><tr><td>PARQUET</td><td>列式</td><td>中</td><td>快</td><td>可切分</td><td>NONE, SNAPPY，BZIP2</td></tr></tbody></table><h2 id="0x01-压缩方式"><a href="#0x01-压缩方式" class="headerlink" title="0x01 压缩方式"></a>0x01 压缩方式</h2>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;采用Hive作为数据仓库工具，由于数仓既要存储来自不同系统的数据源，还要执行ETL数据任务，所以Hive不仅提供了多种存储格式（TEXTFILE，ORC，PARQUET），降低了存储成本，而且还支持多种压缩方式（zlib，snappy，bzip2），提高了计算效率。那么，不同的业务场景该选择哪一种存储格式或压缩方式呢？&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
+    
+    
+      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
+    
+  </entry>
   
   <entry>
     <title>Hive元数据的解析</title>
@@ -431,36 +453,6 @@
     
     
       <category term="mapreduce" scheme="https://jordenbruce.com/tags/mapreduce/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>数据仓库的初级手册</title>
-    <link href="https://jordenbruce.com/2019/10/12/dw-junior-manual/"/>
-    <id>https://jordenbruce.com/2019/10/12/dw-junior-manual/</id>
-    <published>2019-10-12T12:54:02.000Z</published>
-    <updated>2019-10-25T13:00:41.433Z</updated>
-    
-    <content type="html"><![CDATA[<p>这套初级手册是基于 Hadoop+Hive+Sqoop+Airflow 编写的，主要目的是对数据仓库有个宏观的认识，包括数据采集、ETL流程、任务调度和数据模型等。当中的每一个环节都有着丰富的内容，会在后期的中级手册与高级手册进行讨论，欢迎大家来围观。<br><a id="more"></a></p><h2 id="0x00-环境搭建"><a href="#0x00-环境搭建" class="headerlink" title="0x00 环境搭建"></a>0x00 环境搭建</h2><ul><li><a href="https://jordenbruce.com/2019/09/15/hadoop-release/">Hadoop发行版的选取</a></li><li><a href="https://jordenbruce.com/2019/09/15/hadoop-build/">编译Hadoop源码包</a></li><li><a href="https://jordenbruce.com/2019/09/15/hadoop-install/">手动搭建Hadoop分布式运行环境</a></li><li><a href="https://jordenbruce.com/2019/09/15/hive-install/">手动搭建Hive开发环境</a></li><li><a href="https://jordenbruce.com/2019/09/15/sqoop-install/">手动搭建Sqoop开发环境</a></li></ul><h2 id="0x01-工具使用"><a href="#0x01-工具使用" class="headerlink" title="0x01 工具使用"></a>0x01 工具使用</h2><ul><li><a href="https://jordenbruce.com/2019/09/20/hadoop-cli/">hadoop命令行的常用操作</a></li><li><a href="https://jordenbruce.com/2019/09/22/hdfs-cli/">hdfs命令行的常用操作</a></li><li><a href="https://jordenbruce.com/2019/09/22/yarn-cli/">yarn命令行的常用操作</a></li><li><a href="https://jordenbruce.com/2019/09/23/hql-table/">HiveQL的Table常用操作</a></li><li><a href="https://jordenbruce.com/2019/09/24/hql-dml/">HiveQL的导入与导出</a></li><li><a href="https://jordenbruce.com/2019/09/26/hql-select/">HiveQL的Select语句</a></li><li><a href="https://www.cnblogs.com/liupengpengg/p/7908274.html" target="_blank" rel="noopener">HiveQL的Join语句</a></li><li><a href="https://jordenbruce.com/2019/09/30/hql-function/">HiveQL的函数概览</a></li><li><a href="https://jordenbruce.com/2019/10/05/hql-function-math/">HiveQL的数学函数</a></li><li><a href="https://jordenbruce.com/2019/10/05/hql-function-date/">HiveQL的日期函数</a></li><li><a href="https://jordenbruce.com/2019/10/05/hql-function-string/">HiveQL的字符串函数</a></li><li><a href="https://jordenbruce.com/2019/10/08/sqoop-cli/">Sqoop命令行的导入与导出</a></li></ul><h2 id="0x02-数据模型"><a href="#0x02-数据模型" class="headerlink" title="0x02 数据模型"></a>0x02 数据模型</h2><ul><li><a href="https://jordenbruce.com/2019/10/09/growth-model/">简化版的增长模型</a></li></ul><h2 id="0x03-任务流调度"><a href="#0x03-任务流调度" class="headerlink" title="0x03 任务流调度"></a>0x03 任务流调度</h2><ul><li><a href="https://jordenbruce.com/2019/10/10/workflow/">常见的任务调度系统</a></li></ul><h2 id="延伸"><a href="#延伸" class="headerlink" title="延伸"></a>延伸</h2><p>除了以上提到的主题之外，还有数据管理（元数据，计算管理，存储和成本管理，数据质量），数据应用（接口服务，报表服务，应用服务），数据挖掘等。</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;这套初级手册是基于 Hadoop+Hive+Sqoop+Airflow 编写的，主要目的是对数据仓库有个宏观的认识，包括数据采集、ETL流程、任务调度和数据模型等。当中的每一个环节都有着丰富的内容，会在后期的中级手册与高级手册进行讨论，欢迎大家来围观。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
-    
-    
-      <category term="hadoop" scheme="https://jordenbruce.com/tags/hadoop/"/>
-    
-      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
-    
-      <category term="sqoop" scheme="https://jordenbruce.com/tags/sqoop/"/>
-    
-      <category term="modeling" scheme="https://jordenbruce.com/tags/modeling/"/>
-    
-      <category term="workflow" scheme="https://jordenbruce.com/tags/workflow/"/>
     
   </entry>
   
