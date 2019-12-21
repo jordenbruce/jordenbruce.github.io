@@ -39,6 +39,28 @@
   </entry>
   
   <entry>
+    <title>常用的Hive用户配置属性</title>
+    <link href="https://jordenbruce.com/2019/12/20/hive-config-property/"/>
+    <id>https://jordenbruce.com/2019/12/20/hive-config-property/</id>
+    <published>2019-12-20T10:23:11.000Z</published>
+    <updated>2019-12-21T09:05:22.213Z</updated>
+    
+    <content type="html"><![CDATA[<p>Hive 用户配置属性有很多，包括查询引擎的、文件格式的、元数据的、HiveServer2的等等，本文主要介绍查询引擎的一些常用配置属性。另外，Hive 采用 MapReduce 和 Yarn 作为计算引擎和资源调度时，也有各自的用户配置属性，不在本文的介绍范围之内。<br><a id="more"></a></p><h2 id="0x00-常用的用户配置属性"><a href="#0x00-常用的用户配置属性" class="headerlink" title="0x00 常用的用户配置属性"></a>0x00 常用的用户配置属性</h2><p>尽管Hive完整的用户配置属性有800多个，但是开发者们经过不断地迭代和使用场景的收集，对所有的配置属性都给定了默认值，来满足大部分的应用场景。<br>在某些特定应用场景下，我们还需要手动更改配置属性，来优化查询引擎，提高执行效率。以下是一些常用的配置属性：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">set hive.execution.engine=mr;</span><br><span class="line">---并行地执行作业</span><br><span class="line">set hive.exec.parallel=false;</span><br><span class="line">---合并小文件</span><br><span class="line">set hive.merge.mapfiles=true;</span><br><span class="line">set hive.merge.mapredfiles=false;</span><br><span class="line">set hive.hadoop.supports.splittable.combineinputformat=false;</span><br><span class="line">---分组查询时map端聚合</span><br><span class="line">set hive.map.aggr=true;</span><br><span class="line">---优化分组查询的数据倾斜</span><br><span class="line">set hive.groupby.skewindata=false;</span><br><span class="line">---优化谓词下推</span><br><span class="line">set hive.optimize.ppd=true;</span><br><span class="line">---启用mapjoin优化</span><br><span class="line">set hive.ignore.mapjoin.hint=true;</span><br><span class="line">set hive.auto.convert.join=true;</span><br><span class="line">---启用倾斜连接优化</span><br><span class="line">set hive.optimize.skewjoin=false;</span><br><span class="line">---设置reduce任务数</span><br><span class="line">set mapred.reduce.tasks=-1;</span><br><span class="line">set hive.exec.reducers.bytes.per.reducer=256000000;</span><br><span class="line">set hive.exec.reducers.max=1009;</span><br><span class="line">---启用reduce任务的推测执行</span><br><span class="line">set hive.mapred.reduce.tasks.speculative.execution=true;</span><br><span class="line">---启用动态分区</span><br><span class="line">set hive.exec.dynamic.partition=true;</span><br><span class="line">set hive.exec.dynamic.partition.mode=strict;</span><br><span class="line">---查询的最终输出是否压缩</span><br><span class="line">set hive.exec.compress.output=false;</span><br></pre></td></tr></table></figure><p>当然，以上的每一种业务场景都会有一套配置属性，这里就不一一列举了，后期碰到了具体业务场景再进行补充。</p><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/Configuration+Properties" target="_blank" rel="noopener">Hive Configuration Properties</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Hive 用户配置属性有很多，包括查询引擎的、文件格式的、元数据的、HiveServer2的等等，本文主要介绍查询引擎的一些常用配置属性。另外，Hive 采用 MapReduce 和 Yarn 作为计算引擎和资源调度时，也有各自的用户配置属性，不在本文的介绍范围之内。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
+    
+    
+      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Hive存储格式与压缩</title>
     <link href="https://jordenbruce.com/2019/12/20/hive-fileformat-compress/"/>
     <id>https://jordenbruce.com/2019/12/20/hive-fileformat-compress/</id>
@@ -431,28 +453,6 @@
     
     
       <category term="hdfs" scheme="https://jordenbruce.com/tags/hdfs/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>YARN技术原理</title>
-    <link href="https://jordenbruce.com/2019/10/16/hadoop-yarn/"/>
-    <id>https://jordenbruce.com/2019/10/16/hadoop-yarn/</id>
-    <published>2019-10-15T23:58:29.000Z</published>
-    <updated>2019-10-22T12:36:15.572Z</updated>
-    
-    <content type="html"><![CDATA[<p>YARN (Yet Another Resource Negotiator) 是从 hadoop-0.23 开始引入的新架构，他的基本设计思想是将 JobTracker 的两个主要功能，资源管理和作业控制（包括调度/监视等），拆分为单独的守护进程，分别是一个全局的 ResourceManager（RM）和每个应用程序的 ApplicationMaster（AM）。应用程序可以是单个作业，也可以是作业的DAG。<br><a id="more"></a></p><h2 id="0x00-YARN-架构"><a href="#0x00-YARN-架构" class="headerlink" title="0x00 YARN 架构"></a>0x00 YARN 架构</h2><p>YARN 的全称是 Yet Another Resource Negotiator，YARN 整体上是 Master/Slave 结构，在整个框架中，ResourceManager 为 Master，NodeManager 为 Slave，如下图所示：</p><p><img src="https://i.loli.net/2019/02/20/5c6d021102002.png" alt="YARN架构"></p><p>主要由以下几个组件构成：</p><ul><li>ResourceManager (RM) : Scheduler, Applications Manager (ASM)</li><li>NodeManager (NM)</li><li>ApplicationMaster (AM)</li><li>Container</li></ul><p>需要说明的是：Scheduler 是一个可插拔的组件，用户可根据自己的需求设计新的调度器，YARN 提供了多种直接可用的调度器，比如 FIFO Scheduler，Fair Scheduler 和 Capacity Schedule 等。</p><h2 id="0x01-YARN-工作流程"><a href="#0x01-YARN-工作流程" class="headerlink" title="0x01 YARN 工作流程"></a>0x01 YARN 工作流程</h2><p>如下图所示用户向YARN中提交一个应用程序后，YARN将分两个阶段运行该应用程序：</p><ul><li>启动AM ，如下步骤1~3；</li><li>由AM创建应用程序为它申请资源并监控它的整个运行过程，直到运行完成，如下步骤4~7。</li></ul><p><img src="https://i.loli.net/2019/02/20/5c6d03e204bfc.png" alt="YARN工作流程"></p><ol><li><p>用户向YARN中提交应用程序，其中包括AM程序、启动AM的命令、命令参数、用户程序等；事实上，需要准确描述运行ApplicationMaster的unix进程的所有信息。提交工作通常由YarnClient来完成。</p></li><li><p>RM为该应用程序分配第一个Container，并与对应的NM通信，要求它在这个Container中启动AM；</p></li><li><p>AM首先向RM注册，这样用户可以直接通过RM査看应用程序的运行状态，运行状态通过 AMRMClientAsync.CallbackHandler的getProgress() 方法来传递给RM。 然后它将为各个任务申请资源，并监控它的运行状态，直到运行结束，即重复步骤4〜7；</p></li><li><p>AM采用轮询的方式通过RPC协议向RM申请和领取资源；资源的协调通过 AMRMClientAsync异步完成,相应的处理方法封装在AMRMClientAsync.CallbackHandler中。</p></li><li><p>—旦AM申请到资源后，便与对应的NM通信，要求它启动任务；通常需要指定一个ContainerLaunchContext，提供Container启动时需要的信息。</p></li><li><p>NM为任务设置好运行环境(包括环境变量、JAR包、二进制程序等)后，将任务启动命令写到一个脚本中，并通过运行该脚本启动任务；</p></li><li><p>各个任务通过某个RPC协议向AM汇报自己的状态和进度，以让AM随时掌握各个任务的运行状态，从而可以在任务失败时重新启动任务；ApplicationMaster与NM的通信通过NMClientAsync object来完成，容器的所有事件通过NMClientAsync.CallbackHandler来处理。例如启动、状态更新、停止等。</p></li><li><p>应用程序运行完成后，AM向RM注销并关闭自己。</p></li></ol><h2 id="0x02-YARN-资源管理"><a href="#0x02-YARN-资源管理" class="headerlink" title="0x02 YARN 资源管理"></a>0x02 YARN 资源管理</h2><p>当前 YARN 支持内存和CPU两种资源类型的管理和分配。主要是 scheduler 和 NodeManager 的配置选项设置，参数如下：</p><table><thead><tr><th>参数名</th><th>默认值</th></tr></thead><tbody><tr><td>yarn.resourcemanager.scheduler.class</td><td>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</td></tr><tr><td>yarn.scheduler.minimum-allocation-mb</td><td>1024</td></tr><tr><td>yarn.scheduler.maximum-allocation-mb</td><td>8192</td></tr><tr><td>yarn.scheduler.minimum-allocation-vcores</td><td>1</td></tr><tr><td>yarn.scheduler.maximum-allocation-vcores</td><td>32</td></tr><tr><td>yarn.nodemanager.resource.memory-mb</td><td>8192</td></tr><tr><td>yarn.nodemanager.vmem-pmem-ratio</td><td>2.1</td></tr><tr><td>yarn.nodemanager.pmem-check-enabled</td><td>true</td></tr><tr><td>yarn.nodemanager.vmem-check-enabled</td><td>true</td></tr><tr><td>yarn.nodemanager.resource.cpu-vcores</td><td>8</td></tr><tr><td>yarn.nodemanager.resource.percentage-physical-cpu-limit</td><td>100</td></tr></tbody></table><p>另外，YARN 使用了轻量级资源隔离机制Cgroups进行资源隔离以避免相互干扰，一旦Container使用的资源量超过事先定义的上限值，就将其杀死。</p><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-yarn/hadoop-yarn-site/YARN.html" target="_blank" rel="noopener">YARN Architecture</a><br><a href="https://matt33.com/2018/09/01/yarn-architecture-learn/" target="_blank" rel="noopener">YARN 架构学习总结</a><br><a href="https://cshihong.github.io/2018/05/11/Yarn技术原理/" target="_blank" rel="noopener">Yarn技术原理</a><br><a href="https://blog.csdn.net/bingduanlbd/article/details/51880019" target="_blank" rel="noopener">理解Hadoop YARN架构</a><br><a href="http://www.cnblogs.com/wcwen1990/p/6737985.html" target="_blank" rel="noopener">YARN架构设计详解</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;YARN (Yet Another Resource Negotiator) 是从 hadoop-0.23 开始引入的新架构，他的基本设计思想是将 JobTracker 的两个主要功能，资源管理和作业控制（包括调度/监视等），拆分为单独的守护进程，分别是一个全局的 ResourceManager（RM）和每个应用程序的 ApplicationMaster（AM）。应用程序可以是单个作业，也可以是作业的DAG。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Hadoop" scheme="https://jordenbruce.com/categories/Hadoop/"/>
-    
-    
-      <category term="yarn" scheme="https://jordenbruce.com/tags/yarn/"/>
     
   </entry>
   
