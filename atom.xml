@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2020-02-29T08:11:59.468Z</updated>
+  <updated>2020-02-29T09:51:38.410Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>【翻译】Hive中的分区和桶</title>
+    <link href="https://jordenbruce.com/2020/02/29/hive-partition-bucket/"/>
+    <id>https://jordenbruce.com/2020/02/29/hive-partition-bucket/</id>
+    <published>2020-02-29T08:55:30.000Z</published>
+    <updated>2020-02-29T09:51:38.410Z</updated>
+    
+    <content type="html"><![CDATA[<p>在这篇文章中，我们将讨论Hive中的两个重要概念“分区和桶”。这些用于提高查询性能，理解它们很重要，以便您可以有效地应用它们。因此，让我们从分区开始。<br><a id="more"></a></p><h2 id="0x00-分区"><a href="#0x00-分区" class="headerlink" title="0x00 分区"></a>0x00 分区</h2><p>分区是Hive中一种用于增强查询性能的技术。通过将数据重组到子目录中来完成此操作。让我们通过一个例子来理解这个概念。</p><p>假设我们有一个10 GB的大文件，其中包含客户的地理数据。现在，我们要提取特定国家和特定受雇者身份的记录。为此，它将执行表扫描以读取所有行，然后仅选择满足给定谓词的那些记录。</p><p>现在，如果我们按国家对表进行分区并运行查询，它将不会扫描整个表，而只会查看该特定国家/地区的子目录。我们可以看到查询的执行计划，以验证它只查找一个过滤谓词即employeeId。它将直接查看子目录/Country=”印度”，并在该子目录中搜索员工。此技术称为分区修剪。该查询将过滤掉不需要扫描的分区，因此非常有效。同样，用于分区的列也不是create语句的一部分，但可以在查询中使用。它们称为虚拟分区列。每当我们将这些虚拟分区列用作过滤器时，查询服务的速度都比未分区表快得多，尤其是在数据量很大的情况下。</p><p>让我们看看如何创建Hive内部（管理表）和外部分区表并将数据加载到这些表中。</p><h3 id="Hive内部表"><a href="#Hive内部表" class="headerlink" title="Hive内部表"></a>Hive内部表</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">--(1)创建分区表</span><br><span class="line">Create table tbl_managed</span><br><span class="line">(</span><br><span class="line">    employeeId STRING,</span><br><span class="line">    name STRING</span><br><span class="line">)</span><br><span class="line">Partitioned By(country STRING)</span><br><span class="line">Stored as TextFile;</span><br><span class="line">--(2)加载数据</span><br><span class="line">Load Data Inpath &apos;/mydata/Employee/India&apos;</span><br><span class="line">into Table tbl_managed</span><br><span class="line">Partition(country=&apos;India&apos;)</span><br></pre></td></tr></table></figure><h3 id="Hive外部表"><a href="#Hive外部表" class="headerlink" title="Hive外部表"></a>Hive外部表</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">--(1)创建分区表</span><br><span class="line">Create External table tbl_external</span><br><span class="line">(</span><br><span class="line">    employeeid STRING,</span><br><span class="line">    name STRING</span><br><span class="line">)</span><br><span class="line">Partitioned By(country STRING)</span><br><span class="line">Stored as TextFile;</span><br><span class="line">--(2)添加数据</span><br><span class="line">Alter Table tbl_external Add Partition(country=&apos;India&apos;)</span><br><span class="line">Location &apos;/mydata/Employee/India&apos;;</span><br></pre></td></tr></table></figure><h3 id="分区时的注意事项"><a href="#分区时的注意事项" class="headerlink" title="分区时的注意事项"></a>分区时的注意事项</h3><ul><li>您用于分区的列的基数应该较低，即该列的不同值较低。原因是由于基数高，我们最终会有许多子目录或文件。由于mapper数量取决于输入大小和块大小，因此创建许多分区最终将使用许多mapper，并且在大多数情况下，这将导致资源浪费。</li><li>许多分区还会发生的另一件事是，在内存中跟踪文件系统元数据的NameNode也将具有不必要的开销，因为它现在必须跟踪许多分区。</li><li>当我们在外部表上创建分区时，位置是可选的。但是我们应该始终提供位置（例如root/a/b），因为以后可以将其用于与Hive metastore同步。因此，如果您提供了位置，然后添加了诸如root/a/b/country=’India’之类的子目录，那么当我们运行命令MSCK Repair Table Tablename时。它将自动添加该分区。</li></ul><h3 id="分区在以下情况下很有用"><a href="#分区在以下情况下很有用" class="headerlink" title="分区在以下情况下很有用"></a>分区在以下情况下很有用</h3><ul><li>分区数量有限</li><li>所有分区均匀分布</li></ul><h2 id="0x02-桶"><a href="#0x02-桶" class="headerlink" title="0x02 桶"></a>0x02 桶</h2><p>当由于分区不相等或分区数量太多而无法通过分区提高查询效率时，我们可以尝试进行分桶。桶概念基于桶列上的哈希函数。产生相同哈希的记录将始终位于同一存储桶中。</p><p>要将表划分为桶，我们使用Clustered by子句。每个桶就像目录中的文件，并且所有文件均等分布。</p><h3 id="桶的优点"><a href="#桶的优点" class="headerlink" title="桶的优点"></a>桶的优点</h3><ul><li>在分桶表上进行Map-Side联接的速度更快，因为它们的大小相似。</li><li>可以保持记录在每个存储桶中排序</li><li>当数据按桶中的列排序并用于联接时，Map端联接甚至更快</li><li>提供对非分桶表的有效采样</li><li>使用分桶，我们始终可以定义要形成的桶数量，而在分区中却并非如此</li><li>分区或不分区均可使用桶</li></ul><p>如何创建分桶表：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Create Table t1(a INT,b STRING,c STRING)</span><br><span class="line">CLUSTERED BY (b) BUCKETS 128 BUCKETS</span><br></pre></td></tr></table></figure><p>Hive不会对加载到表中的数据强制执行分桶。创建表后，我们必须对其进行管理。有两种方法可以实现：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">--(1)set mapred.reduce.tasks=64(桶数)</span><br><span class="line">Insert Overwrite Table t1</span><br><span class="line">Select a,b,c from table2 cluster by b</span><br><span class="line">--(2) set hive.enforce.bucketing=true;</span><br><span class="line">Insert Overwrite Table t1</span><br><span class="line">Select a,b,c from table2</span><br></pre></td></tr></table></figure><p>这将自动从Create Table语句中找出分桶列和桶数量。</p><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://www.sqlrelease.com/partitioning-and-bucketing-in-hive" target="_blank" rel="noopener">Partitioning and Bucketing in Hive</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在这篇文章中，我们将讨论Hive中的两个重要概念“分区和桶”。这些用于提高查询性能，理解它们很重要，以便您可以有效地应用它们。因此，让我们从分区开始。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Data Warehouse" scheme="https://jordenbruce.com/categories/Data-Warehouse/"/>
+    
+    
+      <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
+    
+  </entry>
   
   <entry>
     <title>常用的Hive用户配置属性</title>
@@ -431,28 +453,6 @@
     
     
       <category term="hive" scheme="https://jordenbruce.com/tags/hive/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>HDFS架构原理</title>
-    <link href="https://jordenbruce.com/2019/10/19/hadoop-hdfs/"/>
-    <id>https://jordenbruce.com/2019/10/19/hadoop-hdfs/</id>
-    <published>2019-10-19T09:29:24.000Z</published>
-    <updated>2019-10-22T12:36:09.282Z</updated>
-    
-    <content type="html"><![CDATA[<p>HDFS 被设计成适合运行在通用硬件(commodity hardware)上的分布式文件系统，是 Hadoop 应用程序使用的主要分布式存储。HDFS 与现有的分布式文件系统有许多相似之处；但是，与其他分布式文件系统的区别也是很明显的。HDFS 具有高度的容错能力，旨在部署在低成本硬件上；HDFS 提供对应用程序数据的高吞吐量访问，并且适用于具有大数据集的应用程序；HDFS 放宽了一些POSIX要求，以实现对文件系统数据的流式访问。<br><a id="more"></a></p><h2 id="0x00-HDFS-架构"><a href="#0x00-HDFS-架构" class="headerlink" title="0x00 HDFS 架构"></a>0x00 HDFS 架构</h2><p>HDFS (Hadoop Distributed File System) 采用的是 Master/Slave 架构，一个 HDFS 集群包含一个单独的 NameNode 和多个 DataNode 节点，如下图所示：</p><p><img src="https://i.loli.net/2019/10/21/4JgoDXhFeVaukj9.png" alt="HDFS 架构"></p><p>主要由以下几个组件构成：</p><ul><li>NameNode</li><li>Secondary NameNode</li><li>DataNode</li><li>Client</li></ul><p>需要说明的是：类似于磁盘 Block size 概念，Hadoop 集群中文件的存储都是以块的形式存储在 HDFS 中。通过设置 hdfs-site.xml 文件中 dfs.blocksize 参数来配置块大小，默认是128M。</p><h2 id="0x01-文件写入过程"><a href="#0x01-文件写入过程" class="headerlink" title="0x01 文件写入过程"></a>0x01 文件写入过程</h2><p><img src="https://i.loli.net/2019/10/21/5EOiCB2JVQYNswd.png" alt="HDFS 文件写入过程"></p><p>Client 向 HDFS 写入文件的具体过程如下：</p><ol><li><p>Client 调用 DistributedFileSystem 对象的 create 方法，创建一个文件输出流（FSDataOutputStream）对象；</p></li><li><p>通过 DistributedFileSystem 对象与集群的 NameNode 进行一次 RPC 远程调用，在 HDFS 的 Namespace 中创建一个文件条目（Entry），此时该条目没有任何的 Block，NameNode 会返回该数据每个块需要拷贝的 DataNode 地址信息；</p></li><li><p>通过 FSDataOutputStream 对象，开始向 DataNode 写入数据，数据首先被写入 FSDataOutputStream 对象内部的数据队列中，数据队列由 DataStreamer 使用，它通过选择合适的 DataNode 列表来存储副本，从而要求 NameNode 分配新的 block；</p></li><li><p>DataStreamer 将数据包以流式传输的方式传输到分配的第一个 DataNode 中，该数据流将数据包存储到第一个 DataNode 中并将其转发到第二个 DataNode 中，接着第二个 DataNode 节点会将数据包转发到第三个 DataNode 节点；</p></li><li><p>DataNode 确认数据传输完成，最后由第一个 DataNode 通知 client 数据写入成功；</p></li><li><p>完成向文件写入数据，Client 在文件输出流（FSDataOutputStream）对象上调用 close 方法，完成文件写入；</p></li><li><p>调用 DistributedFileSystem 对象的 complete 方法，通知 NameNode 文件写入成功，NameNode 会将相关结果记录到 editlog 中。</p></li></ol><h2 id="0x02-文件读取过程"><a href="#0x02-文件读取过程" class="headerlink" title="0x02 文件读取过程"></a>0x02 文件读取过程</h2><p><img src="https://i.loli.net/2019/10/21/oYipLz9MEq4TyS7.png" alt="HDFS 文件读取过程"></p><p>Client 向 HDFS 读取文件的具体过程如下：</p><ol><li><p>Client 通过 DistributedFileSystem 对象与集群的 NameNode 进行一次 RPC 远程调用，获取文件 block 位置信息；</p></li><li><p>NameNode 返回存储的每个块的 DataNode 列表；</p></li><li><p>Client 将连接到列表中最近的 DataNode；</p></li><li><p>Client 开始从 DataNode 并行读取数据；</p></li><li><p>一旦 Client 获得了所有必须的 block，它就会将这些 block 组合起来形成一个文件。</p></li></ol><p>在处理 Client 的读取请求时，HDFS 会利用机架感知选举最接近 Client 位置的副本，这将会减少读取延迟和带宽消耗。</p><h2 id="0x03-HDFS-遗留问题"><a href="#0x03-HDFS-遗留问题" class="headerlink" title="0x03 HDFS 遗留问题"></a>0x03 HDFS 遗留问题</h2><p>在前面的介绍中，关于 HDFS 1.0 架构的设计缺陷主要有以下两点：</p><ul><li><p>NameNode 的单点问题，如果 NameNode 挂掉了，数据读写都会受到影响，HDFS 整体将变得不可用，这在生产环境中是不可接受的；</p></li><li><p>水平扩展问题，随着集群规模的扩大，1.0 时集群规模达到3000时，会导致整个集群管理的文件数目达到上限（因为 NameNode 要管理整个集群 block 元信息、数据目录信息等）。</p></li></ul><p>为了解决上面的两个问题，Hadoop2.0 提供一套统一的解决方案：</p><ul><li><p>HA（High Availability 高可用方案）：这个是为了解决 NameNode 单点问题；</p></li><li><p>NameNode Federation：是用来解决 HDFS 集群的线性扩展能力。</p></li></ul><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html" target="_blank" rel="noopener">HDFS Users Guide</a><br><a href="https://hadoop.apache.org/docs/r2.7.6/hadoop-project-dist/hadoop-hdfs/HdfsDesign.html" target="_blank" rel="noopener">HDFS Architecture</a><br><a href="https://www.cnblogs.com/sheng-sjk/p/10624958.html" target="_blank" rel="noopener">Hdfs block数据块大小的设置规则</a><br><a href="https://www.jianshu.com/p/25bdb4b8051e" target="_blank" rel="noopener">HDFS基础架构与各个组件的功能</a><br><a href="https://matt33.com/2018/07/15/hdfs-architecture-learn/" target="_blank" rel="noopener">HDFS 架构学习总结</a><br><a href="https://www.open-open.com/lib/view/open1376228205209.html" target="_blank" rel="noopener">HDFS 原理、架构与特性介绍</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;HDFS 被设计成适合运行在通用硬件(commodity hardware)上的分布式文件系统，是 Hadoop 应用程序使用的主要分布式存储。HDFS 与现有的分布式文件系统有许多相似之处；但是，与其他分布式文件系统的区别也是很明显的。HDFS 具有高度的容错能力，旨在部署在低成本硬件上；HDFS 提供对应用程序数据的高吞吐量访问，并且适用于具有大数据集的应用程序；HDFS 放宽了一些POSIX要求，以实现对文件系统数据的流式访问。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Hadoop" scheme="https://jordenbruce.com/categories/Hadoop/"/>
-    
-    
-      <category term="hdfs" scheme="https://jordenbruce.com/tags/hdfs/"/>
     
   </entry>
   
