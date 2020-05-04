@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://jordenbruce.com/"/>
-  <updated>2020-05-04T11:49:38.147Z</updated>
+  <updated>2020-05-04T11:54:47.386Z</updated>
   <id>https://jordenbruce.com/</id>
   
   <author>
@@ -21,15 +21,15 @@
     <link href="https://jordenbruce.com/2020/05/04/python-concurrency/"/>
     <id>https://jordenbruce.com/2020/05/04/python-concurrency/</id>
     <published>2020-05-04T10:25:30.000Z</published>
-    <updated>2020-05-04T11:49:38.147Z</updated>
+    <updated>2020-05-04T11:54:47.386Z</updated>
     
-    <content type="html"><![CDATA[<p><a href="https://realpython.com/python-concurrency/" target="_blank" rel="noopener">Speed Up Your Python Program With Concurrency</a></p><p><a href="https://realpython.com/intro-to-python-threading/" target="_blank" rel="noopener">An Intro to Threading in Python</a></p>]]></content>
+    <content type="html"><![CDATA[<p><a href="https://realpython.com/python-concurrency/" target="_blank" rel="noopener">《使用并发加速Python程序》</a> <a href="https://realpython.com/intro-to-python-threading/" target="_blank" rel="noopener">《Python线程简介》</a></p>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;p&gt;&lt;a href=&quot;https://realpython.com/python-concurrency/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Speed Up Your Python Program With Concurrency&lt;/a&gt;&lt;/p&gt;
+        &lt;p&gt;&lt;a href=&quot;https://realpython.com/python-concurrency/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;《使用并发加速Python程序》&lt;/a&gt; &lt;a href=&quot;https://realpython.com/
       
     
     </summary>
